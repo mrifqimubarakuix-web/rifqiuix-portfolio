@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
   var toggle = document.querySelector(".menu-toggle");
-  var closeBtn = document.querySelector("[data-menu-close]");
   var overlay = document.querySelector("[data-menu-overlay]");
   var panel = document.querySelector("[data-menu-panel]");
 
@@ -32,7 +31,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  if (closeBtn) closeBtn.addEventListener("click", closeMenu);
   if (overlay) overlay.addEventListener("click", closeMenu);
   if (panel) {
     panel.querySelectorAll("a").forEach(function (a) {

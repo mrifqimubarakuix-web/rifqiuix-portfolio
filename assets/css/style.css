@@ -13,8 +13,6 @@
   --blue: #87a6e5;
   --pale-yellow: #fdffcc;
   --line: rgba(255, 255, 255, 0.14);
-  --pill-bg: #ffffff;
-  --pill-fg: #090909;
   --radius: 14px;
   --container: 1120px;
   --gap: clamp(1rem, 3vw, 2rem);
@@ -116,31 +114,6 @@ img { max-width: 100%; display: block; }
   .email-link svg { width: 20px; height: 20px; }
 }
 
-.main-nav {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.25rem;
-  margin-top: 1.25rem;
-  flex-wrap: wrap;
-}
-
-.main-nav a {
-  font-size: 0.75rem;
-  letter-spacing: 0.04em;
-  color: var(--muted);
-  padding: 0.5rem 0.9rem;
-  border-radius: 999px;
-  transition: background 0.15s ease, color 0.15s ease;
-  white-space: nowrap;
-}
-
-.main-nav a:hover { color: var(--fg); }
-
-.main-nav a.active {
-  background: var(--pill-bg);
-  color: var(--pill-fg);
-}
-
 /* ---------- Hamburger menu overlay ---------- */
 
 .menu-overlay {
@@ -177,23 +150,6 @@ body.menu-open .menu-panel {
   pointer-events: auto;
   transform: translateY(0);
 }
-
-.menu-close-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 2.25rem;
-}
-
-.menu-close {
-  background: none;
-  border: none;
-  color: var(--fg);
-  cursor: pointer;
-  padding: 4px;
-  display: flex;
-}
-
-.menu-close svg { width: 22px; height: 22px; }
 
 .menu-list {
   display: flex;

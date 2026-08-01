@@ -91,4 +91,15 @@ document.addEventListener("DOMContentLoaded", function () {
     sortSelect.addEventListener("change", sortCareerItems);
     sortCareerItems();
   }
+
+  var summary = document.getElementById("career-summary");
+  if (summary) {
+    var startYear = parseInt(summary.getAttribute("data-start-year"), 10);
+    var startMonth = parseInt(summary.getAttribute("data-start-month"), 10) - 1;
+    var now = new Date();
+    var years = now.getFullYear() - startYear;
+    if (now.getMonth() < startMonth) years--;
+    var companyCount = careerList ? careerList.querySelectorAll(".career-item").length : 0;
+    summary.textContent = years + "+ years across " + companyCount + " companies";
+  }
 });

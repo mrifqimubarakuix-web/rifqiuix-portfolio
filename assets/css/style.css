@@ -473,6 +473,13 @@ body.menu-open .menu-panel {
 
 .page-heading-row .page-heading { padding: 0; }
 
+.career-summary {
+  margin: 0.4rem 0 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: var(--muted-2);
+}
+
 .sort-control {
   display: inline-flex;
   align-items: center;

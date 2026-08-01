@@ -155,9 +155,9 @@ img { max-width: 100%; display: block; }
 
 .menu-panel {
   position: fixed;
-  top: 88px;
-  left: 20px;
-  width: min(320px, calc(100vw - 40px));
+  top: 0;
+  left: 0;
+  width: min(280px, calc(100vw - 40px));
   background: #141414;
   border: 1px solid var(--line);
   border-radius: 28px;
@@ -182,15 +182,6 @@ body.menu-open .menu-panel {
   display: flex;
   align-items: center;
   margin-bottom: 2.25rem;
-}
-
-.menu-dot {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--fg);
-  margin-right: -4px;
-  flex-shrink: 0;
 }
 
 .menu-close {

@@ -4,7 +4,15 @@ document.addEventListener("DOMContentLoaded", function () {
   var overlay = document.querySelector("[data-menu-overlay]");
   var panel = document.querySelector("[data-menu-panel]");
 
+  function positionPanel() {
+    if (!toggle || !panel) return;
+    var rect = toggle.getBoundingClientRect();
+    panel.style.left = Math.round(rect.left) + "px";
+    panel.style.top = Math.round(rect.bottom + 14) + "px";
+  }
+
   function openMenu() {
+    positionPanel();
     document.body.classList.add("menu-open");
     if (toggle) toggle.setAttribute("aria-expanded", "true");
   }
@@ -34,5 +42,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") closeMenu();
+  });
+
+  window.addEventListener("resize", function () {
+    if (document.body.classList.contains("menu-open")) positionPanel();
   });
 });

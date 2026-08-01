@@ -45,4 +45,35 @@ document.addEventListener("DOMContentLoaded", function () {
   window.addEventListener("resize", function () {
     if (document.body.classList.contains("menu-open")) positionPanel();
   });
+
+  var previewLinks = document.querySelectorAll("[data-preview]");
+  if (previewLinks.length && window.matchMedia("(hover: hover)").matches) {
+    var preview = document.createElement("div");
+    preview.className = "hover-preview";
+    var previewImg = document.createElement("img");
+    preview.appendChild(previewImg);
+    document.body.appendChild(preview);
+
+    function movePreview(e) {
+      var offset = 24;
+      var x = e.clientX + offset;
+      var y = e.clientY + offset;
+      var maxX = window.innerWidth - preview.offsetWidth - 12;
+      var maxY = window.innerHeight - preview.offsetHeight - 12;
+      preview.style.left = Math.min(x, maxX) + "px";
+      preview.style.top = Math.min(y, maxY) + "px";
+    }
+
+    previewLinks.forEach(function (link) {
+      link.addEventListener("mouseenter", function (e) {
+        previewImg.src = link.getAttribute("data-preview");
+        preview.classList.add("visible");
+        movePreview(e);
+      });
+      link.addEventListener("mousemove", movePreview);
+      link.addEventListener("mouseleave", function () {
+        preview.classList.remove("visible");
+      });
+    });
+  }
 });

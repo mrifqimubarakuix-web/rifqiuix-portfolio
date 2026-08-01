@@ -11,6 +11,7 @@
   --muted-2: #6b6b6b;
   --pink: #ff7e99;
   --blue: #87a6e5;
+  --orange: #ffd693;
   --pale-yellow: #fdffcc;
   --line: rgba(255, 255, 255, 0.14);
   --radius: 14px;
@@ -278,6 +279,7 @@ body.menu-open .menu-panel {
 .overview-label { color: var(--pale-yellow); }
 .highlight-pink { color: var(--pink); }
 .highlight-blue { color: var(--blue); }
+.highlight-orange { color: var(--orange); }
 
 @media (min-width: 760px) {
   .case-meta {
@@ -496,6 +498,14 @@ body.menu-open .menu-panel {
   color: var(--muted-2);
 }
 
+.career-summary a {
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.career-summary a:hover { color: var(--fg); }
+
 .sort-control {
   display: inline-flex;
   align-items: center;
@@ -507,14 +517,17 @@ body.menu-open .menu-panel {
 }
 
 .sort-control select {
-  background: var(--bg-soft);
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--bg-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a0a0a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0.9rem center;
+  background-size: 12px;
   border: 1px solid var(--line);
   color: var(--fg);
   font-family: inherit;
   font-size: 0.75rem;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  padding: 0.4rem 0.7rem;
+  padding: 0.55rem 2.2rem 0.55rem 1.1rem;
   border-radius: 999px;
   cursor: pointer;
 }

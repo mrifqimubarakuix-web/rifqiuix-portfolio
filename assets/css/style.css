@@ -462,6 +462,40 @@ body.menu-open .menu-panel {
   text-transform: uppercase;
 }
 
+.page-heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 2.5rem 0 2.5rem;
+}
+
+.page-heading-row .page-heading { padding: 0; }
+
+.sort-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--muted-2);
+  text-transform: uppercase;
+}
+
+.sort-control select {
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
 /* ---------- Career ---------- */
 
 .career-list {
@@ -471,34 +505,57 @@ body.menu-open .menu-panel {
 }
 
 .career-item {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.5rem;
   padding: 2rem 0;
   border-top: 1px solid var(--line);
 }
 
 .career-item:last-child { padding-bottom: 0; }
 
+.career-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
 .career-item .dates {
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .career-item h2 {
-  margin: 0.3rem 0 0;
-  font-size: 1.3rem;
+  margin: 0;
+  font-size: 1.6rem;
   font-weight: 700;
 }
 
 .career-item h2 a:hover { text-decoration: underline; }
+
+.career-item .role {
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 0.5rem;
+}
+
+.career-item p {
+  color: #cfcfcf;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  margin: 0.85rem 0 0;
+  max-width: 42rem;
+}
 
 /* cursor-following cover preview, shown on hover over a career item's title */
 .hover-preview {
   position: fixed;
   top: -9999px;
   left: -9999px;
-  width: 240px;
+  width: 420px;
   aspect-ratio: 1712 / 748;
   border-radius: 12px;
   overflow: hidden;
@@ -521,30 +578,6 @@ body.menu-open .menu-panel {
 
 @media (hover: none) {
   .hover-preview { display: none !important; }
-}
-
-.career-item .role {
-  color: var(--muted);
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-top: 0.35rem;
-}
-
-.career-item p {
-  color: #cfcfcf;
-  font-size: 0.95rem;
-  line-height: 1.55;
-  margin: 0.85rem 0 0;
-  max-width: 42rem;
-}
-
-@media (min-width: 700px) {
-  .career-item {
-    grid-template-columns: 190px 1fr;
-    gap: var(--gap);
-    align-items: baseline;
-  }
 }
 
 /* ---------- Projects index ---------- */

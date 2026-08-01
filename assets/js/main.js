@@ -76,4 +76,19 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   }
+
+  var sortSelect = document.getElementById("career-sort");
+  var careerList = document.getElementById("career-list");
+  if (sortSelect && careerList) {
+    function sortCareerItems() {
+      var items = Array.prototype.slice.call(careerList.querySelectorAll(".career-item"));
+      items.sort(function (a, b) {
+        var diff = a.getAttribute("data-start").localeCompare(b.getAttribute("data-start"));
+        return sortSelect.value === "recent" ? -diff : diff;
+      });
+      items.forEach(function (item) { careerList.appendChild(item); });
+    }
+    sortSelect.addEventListener("change", sortCareerItems);
+    sortCareerItems();
+  }
 });

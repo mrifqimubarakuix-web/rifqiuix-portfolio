@@ -246,8 +246,8 @@ body.menu-open .menu-panel {
 /* ---------- Logo carousel (home) ---------- */
 
 .logo-carousel {
-  background: #f5efe4;
-  padding: 2.25rem 0;
+  padding: 2.25rem 0 3.5rem;
+  border-top: 1px solid var(--line);
 }
 
 .logo-carousel-label {
@@ -255,7 +255,7 @@ body.menu-open .menu-panel {
   font-size: 0.68rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #8a8074;
+  color: var(--muted-2);
   margin: 0 0 1.5rem;
 }
 
@@ -286,9 +286,9 @@ body.menu-open .menu-panel {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px dashed rgba(0, 0, 0, 0.25);
+  border: 1px dashed var(--line);
   border-radius: 8px;
-  color: rgba(0, 0, 0, 0.35);
+  color: var(--muted-2);
   font-size: 0.68rem;
   letter-spacing: 0.08em;
   padding: 0 1.25rem;
@@ -298,8 +298,8 @@ body.menu-open .menu-panel {
   height: 28px;
   width: auto;
   display: block;
-  filter: grayscale(1);
-  opacity: 0.75;
+  filter: grayscale(1) brightness(0) invert(1);
+  opacity: 0.6;
 }
 
 @media (prefers-reduced-motion: reduce) {

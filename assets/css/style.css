@@ -517,14 +517,18 @@ body.menu-open .menu-panel {
 /* ---------- Project pager (back / previous / next) ---------- */
 
 .project-pager {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-areas: "prev back next";
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1rem;
+  column-gap: 1rem;
+  row-gap: 1rem;
   padding: 2rem 0 4rem;
   border-top: 1px solid var(--line);
 }
+
+.pager-prev { grid-area: prev; justify-self: start; }
+.pager-next { grid-area: next; justify-self: end; }
 
 .pager-side {
   font-size: 0.75rem;
@@ -538,6 +542,8 @@ body.menu-open .menu-panel {
 .pager-side:hover { color: var(--fg); }
 
 .pager-back {
+  grid-area: back;
+  justify-self: center;
   font-size: 0.72rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -552,9 +558,13 @@ body.menu-open .menu-panel {
 .pager-back:hover { border-color: rgba(255, 255, 255, 0.4); }
 
 @media (max-width: 560px) {
-  .project-pager { justify-content: center; }
-  .pager-back { order: -1; flex-basis: 100%; text-align: center; }
-  .pager-prev, .pager-next { flex: 1 1 auto; }
+  .project-pager {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "back back"
+      "prev next";
+  }
+  .pager-back { justify-self: center; }
 }
 
 /* ---------- Articles index page ---------- */

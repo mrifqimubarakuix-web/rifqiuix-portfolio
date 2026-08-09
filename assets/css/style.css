@@ -389,6 +389,18 @@ body.menu-open .menu-panel {
   line-height: 1.4;
 }
 
+.case-outcome-link {
+  display: inline-block;
+  margin-top: 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--fg);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.case-outcome-link:hover { color: var(--pale-yellow); }
+
 @media (min-width: 760px) {
   .case-meta {
     grid-template-columns: 220px 1fr;

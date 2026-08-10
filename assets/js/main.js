@@ -102,4 +102,10 @@ document.addEventListener("DOMContentLoaded", function () {
     var companyCount = careerList ? careerList.querySelectorAll(".career-item").length : 0;
     summary.textContent = years + "+ years across " + companyCount + " companies";
   }
+
+  var statProjectsCount = document.getElementById("stat-projects-count");
+  var projectGrid = document.querySelector(".work .project-grid");
+  if (statProjectsCount && projectGrid) {
+    statProjectsCount.textContent = projectGrid.querySelectorAll(".project-card").length;
+  }
 });

@@ -397,6 +397,13 @@ body.menu-open .menu-panel {
   margin-bottom: 2.5rem;
 }
 
+.case-cover img { object-fit: cover; object-position: top; }
+
+/* Final (non-placeholder) cover images get a larger 24px radius.
+   Placeholder covers keep the standard --radius so future in-progress
+   pages aren't affected until their real image is swapped in. */
+.case-cover:not(.img-placeholder) { border-radius: 24px; }
+
 .case-meta {
   display: grid;
   grid-template-columns: 1fr;
@@ -741,6 +748,61 @@ body.menu-open .menu-panel {
   .footer-meta { margin-top: 0; }
 }
 
+/* ---------- Testimonials (home) ---------- */
+
+.testimonials {
+  padding-top: 3rem;
+  padding-bottom: 3.5rem;
+  border-top: 1px solid var(--line);
+}
+
+.testimonials-kicker {
+  margin: 0 0 1.25rem;
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.testimonial-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+@media (min-width: 700px) {
+  .testimonial-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.testimonial-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+}
+
+.testimonial-quote {
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.55;
+  color: var(--fg);
+}
+
+.testimonial-name {
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.testimonial-role {
+  margin-top: 0.2rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
 /* ---------- Beyond design (home) ---------- */
 
 .beyond {
@@ -1026,13 +1088,29 @@ body.menu-open .menu-panel {
 
 .project-card { display: block; }
 
+/* Fixed pixel height (not aspect-ratio) so every card cover — real
+   <img> or "Image coming soon" placeholder — is guaranteed identical,
+   regardless of the source image's own dimensions. Desktop override
+   MUST come after this base rule in source order, since both have
+   equal specificity and the later rule wins the cascade. */
 .project-card .project-cover {
   border-radius: var(--radius);
   overflow: hidden;
   margin-bottom: 1rem;
+  height: 153px;
 }
 
-.project-card img { width: 100%; height: auto; }
+.project-card img,
+.project-card .project-cover .img-placeholder {
+  width: 100%;
+  height: 100%;
+}
+
+.project-card img { object-fit: cover; object-position: top; display: block; }
+
+@media (min-width: 700px) {
+  .project-card .project-cover { height: 218px; }
+}
 
 .project-card h2 {
   font-size: 1.15rem;

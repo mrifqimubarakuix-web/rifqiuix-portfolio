@@ -103,8 +103,19 @@ document.addEventListener("DOMContentLoaded", function () {
     summary.textContent = years + "+ years across " + companyCount + " companies";
   }
 
-  var statProjectsCount = document.getElementById("stat-projects-count");
+  // Selected Work grid: sort cards automatically by data-date (newest
+  // first), so adding a new project is just a matter of giving it a
+  // date — no manual reordering of the markup required.
   var projectGrid = document.querySelector(".work .project-grid");
+  if (projectGrid) {
+    var projectCards = Array.prototype.slice.call(projectGrid.querySelectorAll(".project-card"));
+    projectCards.sort(function (a, b) {
+      return b.getAttribute("data-date").localeCompare(a.getAttribute("data-date"));
+    });
+    projectCards.forEach(function (card) { projectGrid.appendChild(card); });
+  }
+
+  var statProjectsCount = document.getElementById("stat-projects-count");
   if (statProjectsCount && projectGrid) {
     statProjectsCount.textContent = projectGrid.querySelectorAll(".project-card").length;
   }

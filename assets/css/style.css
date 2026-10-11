@@ -252,6 +252,17 @@ body.menu-open .menu-panel {
   box-shadow: 0 0 0 3px rgba(61, 220, 132, 0.18);
 }
 
+@media (max-width: 560px) {
+  .status-tag {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    gap: 0.4rem;
+    border-radius: 14px;
+    padding: 0.65rem 1rem;
+  }
+}
+
 .hero-text {
   margin: 0;
   font-size: clamp(1.1rem, 2.4vw, 1.6rem);
@@ -667,9 +678,15 @@ body.menu-open .menu-panel {
     grid-template-areas:
       "back back"
       "prev next";
+    column-gap: 1.5rem;
   }
   .pager-back { justify-self: center; }
-  .pager-side { white-space: normal; line-height: 1.4; }
+  .pager-side {
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   .pager-next { text-align: right; }
 }
 
@@ -1146,4 +1163,91 @@ body.menu-open .menu-panel {
 
 @media (min-width: 1100px) {
   .gallery-grid { columns: 3; }
+}
+
+/* ---------- Image lightbox (project detail cover + gallery) ---------- */
+
+.case-cover img.lightbox-trigger,
+.gallery img.lightbox-trigger {
+  cursor: zoom-in;
+}
+
+body.lightbox-open { overflow: hidden; }
+
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(9, 9, 9, 0.94);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.lightbox-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lightbox-stage {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.lightbox-img {
+  max-width: 90vw;
+  max-height: 88vh;
+  border-radius: 8px;
+  cursor: zoom-in;
+  user-select: none;
+  -webkit-user-drag: none;
+  will-change: transform;
+  transition: transform 0.15s ease;
+}
+
+.lightbox-img.dragging { transition: none; }
+
+.lightbox-close {
+  position: absolute;
+  top: 1.1rem;
+  right: 1.1rem;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 1.4rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.lightbox-close:hover { background: rgba(255, 255, 255, 0.18); }
+
+.lightbox-hint {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .lightbox-hint { display: none; }
 }

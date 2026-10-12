@@ -786,6 +786,7 @@ body.menu-open .menu-panel {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.25rem;
+  align-items: stretch;
 }
 
 @media (min-width: 700px) {
@@ -807,6 +808,11 @@ body.menu-open .menu-panel {
   font-size: 1.02rem;
   line-height: 1.55;
   color: var(--fg);
+}
+
+/* Pin attribution to the card bottom so it lines up across cards of any quote length */
+.testimonial-author {
+  margin-top: auto;
 }
 
 .testimonial-name {

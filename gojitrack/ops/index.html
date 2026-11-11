@@ -521,7 +521,7 @@ function renderList() {
 const COPIES = [-2, -1, 0, 1, 2];
 function renderPins() {
   $('pins').innerHTML = COPIES.flatMap(c => KAIJU.map(k => `
-    <button class="pin" data-id="${k.id}" data-copy="${c}" aria-pressed="${k.id === selected}" aria-label="${k.name}, ${LV[k.level].toLowerCase()}">
+    <button class="pin" data-id="${k.id}" data-copy="${c}" aria-pressed="${k.id === selected}" aria-label="${k.name} ${k.meta}, ${LV[k.level].toLowerCase()}">
       <span class="dot">${k.level === 'critical' ? '<span class="pulse"></span><span class="pulse p2"></span><span class="pulse p3"></span>' : ''}<span class="glyph ${k.level}"></span></span>
       <span class="label"><span class="t-mono-strong">${k.name}</span><span class="t-mono c2">${k.meta}</span></span>
     </button>`)).join('');

@@ -113,7 +113,7 @@
 </head>
 <body>
   <header class="nav">
-    <a class="brand" href="../" aria-label="Gojitrack, kembali ke studi kasus"><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><path fill="#F8461E" fill-rule="evenodd" d="M6 8L8 2L12 6L16 0L20 6L24 2L26 8L30 14L24 18L22 26L20 30H12L10 26L8 18L2 14ZM8 12L14 14V16H10ZM24 12L18 14V16H22ZM13 24H15V26H13ZM17 24H19V26H17Z"/></svg>
+    <a class="brand" href="../" aria-label="Gojitrack Makassar, Sulawesi Selatan, kembali ke studi kasus"><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><path fill="#F8461E" fill-rule="evenodd" d="M6 8L8 2L12 6L16 0L20 6L24 2L26 8L30 14L24 18L22 26L20 30H12L10 26L8 18L2 14ZM8 12L14 14V16H10ZM24 12L18 14V16H22ZM13 24H15V26H13ZM17 24H19V26H17Z"/></svg>
       <span class="brand-text"><span class="t-title">Gojitrack</span><span class="t-mono c2">Makassar, Sulawesi Selatan</span></span>
     </a>
     <div class="nav-right">
@@ -121,7 +121,7 @@
       <button class="icon-btn" id="refresh" aria-label="Muat ulang kondisi terkini"></button>
     </div>
   </header>
-  <div class="app">
+  <main class="app">
     <div class="top" id="top"></div>
     <div class="mapwrap" id="mapwrap">
       <svg id="svg" aria-label="Peta sekitar lokasi Anda" role="img">
@@ -138,8 +138,8 @@
         <g id="ov"></g>
       </svg>
     </div>
-    <section class="sheet" id="sheet" aria-live="polite"></section>
-  </div>
+    <section class="sheet" id="sheet" aria-live="polite" aria-label="Status"></section>
+  </main>
   <p class="sr" id="announce" role="alert"></p>
 
 <script>
@@ -239,6 +239,7 @@ function render(o = {}) {
   }
   if (state === 'arah') {
     top.innerHTML = `
+      <h1 class="sr">Arah evakuasi</h1>
       <div class="next"><span id="nextIcon">${icon('arrow-bend-up-right', 32)}</span><div><p class="t-numeral-l" id="nextDist">400 m</p><p class="t-body-l" id="nextText">Belok kanan ke Jl. Sungai Saddang</p></div>
         <button class="icon-btn" data-act="back" aria-label="Tutup navigasi">${icon('x')}</button></div>
       <div class="strip">${icon('siren', 16)}<p class="t-label">GODZILLA tiba dalam <span data-eta>${etaText()}</span> · tetap di rute</p></div>`;

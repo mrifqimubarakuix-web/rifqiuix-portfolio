@@ -77,10 +77,12 @@
     .glyph.monitoring { border: 2px solid var(--alert); }
     .pin .glyph.elevated { width: 24px; height: 24px; background: rgba(248,70,30,.12); }
     .pin .glyph.elevated::after { width: 8px; height: 8px; }
-    .pin .glyph.critical { box-shadow: 0 0 0 2px var(--canvas); position: relative; z-index: 1; }
-    .pulse { position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%; background: rgba(248,70,30,.24); border: 1px solid rgba(248,70,30,.48); animation: pulse 1.6s ease-out infinite; }
-    .pulse.p2 { animation-delay: .8s; }
-    @keyframes pulse { from { transform: scale(.25); opacity: 1; } to { transform: scale(1); opacity: 0; } }
+    .pin .glyph.critical { width: 20px; height: 20px; box-shadow: 0 0 0 2px var(--canvas), 0 0 0 8px rgba(248,70,30,.32); position: relative; z-index: 1; }
+    .pulse { position: absolute; left: 50%; top: 50%; width: 144px; height: 144px; margin: -72px 0 0 -72px; border-radius: 50%; background: rgba(248,70,30,.12); border: 2px solid #F8461E; opacity: 0; animation: pulse 1.8s var(--ease-out) infinite, pulse-fade 1.8s linear infinite; pointer-events: none; }
+    .pulse.p2 { animation-delay: .6s, .6s; }
+    .pulse.p3 { animation-delay: 1.2s, 1.2s; }
+    @keyframes pulse { from { transform: scale(.14); } to { transform: scale(1); } }
+    @keyframes pulse-fade { from { opacity: 1; } to { opacity: 0; } }
 
     /* panels */
     .panel { position: absolute; top: 12px; width: 336px; max-height: calc(100% - 24px); overflow: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px; z-index: 5; transition: opacity 200ms var(--ease-out), transform 200ms var(--ease-out); scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
@@ -153,8 +155,8 @@
       .narrow.dismissed { display: none; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .pulse { animation: none; transform: scale(.7); opacity: .6; }
-      .pulse.p2 { display: none; }
+      .pulse { animation: none; transform: scale(.5); opacity: .6; }
+      .pulse.p2, .pulse.p3 { display: none; }
       .banner { animation: none; }
       .animate .layer, .animate .pin, .signal-btn .chev, .collapse, .icon-btn, .toolbar .ghost { transition: none; }
       .panel, .toolbar { transition: opacity 200ms var(--ease-out); }
@@ -316,7 +318,7 @@ const COPIES = [-2, -1, 0, 1, 2];
 function renderPins() {
   $('pins').innerHTML = COPIES.flatMap(c => KAIJU.map(k => `
     <button class="pin" data-id="${k.id}" data-copy="${c}" aria-pressed="${k.id === selected}" aria-label="${k.name}, ${LV[k.level].toLowerCase()}">
-      <span class="dot">${k.level === 'critical' ? '<span class="pulse"></span><span class="pulse p2"></span>' : ''}<span class="glyph ${k.level}"></span></span>
+      <span class="dot">${k.level === 'critical' ? '<span class="pulse"></span><span class="pulse p2"></span><span class="pulse p3"></span>' : ''}<span class="glyph ${k.level}"></span></span>
       <span class="label"><span class="t-mono-strong">${k.name}</span><span class="t-mono c2">${k.meta}</span></span>
     </button>`)).join('');
   placePins();
@@ -379,7 +381,7 @@ const minScale = () => Math.max(map.clientHeight / 844, map.clientWidth / 2160);
 const span = () => 1440 * view.s;
 function normalize() { const w = span(); view.tx = ((view.tx % w) + w) % w - w; }
 function clampY() {
-  view.s = Math.min(Math.max(view.s, minScale()), minScale() * 4);
+  view.s = Math.min(Math.max(view.s, minScale()), minScale() * 6);
   view.ty = Math.min(0, Math.max(map.clientHeight - 844 * view.s, view.ty));
 }
 function apply(wrap = true) {
@@ -404,7 +406,7 @@ function animated(fn) {
   clearTimeout(settle); settle = setTimeout(() => { map.classList.remove('animate'); apply(); }, 340);
 }
 function zoomAt(f, cx, cy, anim) {
-  const s0 = view.s, s1 = Math.min(Math.max(s0 * f, minScale()), minScale() * 4);
+  const s0 = view.s, s1 = Math.min(Math.max(s0 * f, minScale()), minScale() * 6);
   const go = () => { view.tx = cx - (cx - view.tx) * (s1 / s0); view.ty = cy - (cy - view.ty) * (s1 / s0); view.s = s1; };
   anim ? animated(go) : (go(), apply());
 }
@@ -488,7 +490,7 @@ function tick() {
 setInterval(tick, 1000);
 
 renderList(); renderRight(); renderPins(); fit(); tick();
-centerOn(KAIJU[0], false);
+view.s = minScale() * 2; centerOn(KAIJU[0], false);
 </script>
 </body>
 </html>

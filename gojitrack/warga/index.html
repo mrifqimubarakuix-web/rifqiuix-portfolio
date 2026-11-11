@@ -17,6 +17,7 @@
       --border: #2A2F32; --border-strong: #7A8286;
       --text: #FFFFFF; --text-2: #C5C5C5; --on-accent: #0A0C0D;
       --alert: #F8461E; --safe: #1F8B5C;
+      --ease-out: cubic-bezier(0.23, 1, 0.32, 1); --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
       --sans: "Fustat", system-ui, sans-serif; --mono: "Fira Mono", ui-monospace, monospace;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -43,7 +44,10 @@
     .updated-desk { display: none; }
     .icon-btn { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 4px; }
     .icon-btn:hover { background: var(--raised); }
-    .spin .ic { animation: spin 600ms ease-out; }
+    .icon-btn, .btn, .demo { transition: transform 160ms var(--ease-out); }
+    .icon-btn:active, .btn:active, .demo:active { transform: scale(0.97); }
+    #zoneGroup { transform-box: fill-box; transform-origin: center; }
+    .spin .ic { animation: spin 600ms var(--ease-out); }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .app { height: calc(100dvh - 56px); display: grid; grid-template-columns: 100%; grid-template-rows: auto 1fr auto; grid-template-areas: "top" "map" "sheet"; }
@@ -52,7 +56,8 @@
     .mapwrap svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
     .sheet { grid-area: sheet; background: var(--surface); border-top: 1px solid var(--border); border-radius: 8px 8px 0 0; padding: 16px 12px calc(16px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 16px; position: relative; z-index: 2; }
 
-    .alert { background: var(--alert); color: var(--on-accent); padding: 12px 12px 16px; display: flex; flex-direction: column; gap: 4px; animation: drop 240ms ease-out; }
+    .alert { background: var(--alert); color: var(--on-accent); padding: 12px 12px 16px; display: flex; flex-direction: column; gap: 4px; }
+    .alert.enter { animation: drop 240ms var(--ease-out); }
     .alert-title { display: flex; align-items: center; gap: 8px; }
     @keyframes drop { from { transform: translateY(-12px); opacity: 0; } to { transform: none; opacity: 1; } }
     .next { background: var(--safe); color: var(--on-accent); padding: 12px 4px 12px 12px; display: flex; align-items: center; gap: 12px; }
@@ -100,7 +105,7 @@
       .desk { display: flex; }
       .mob { display: none; }
     }
-    @media (prefers-reduced-motion: reduce) { .alert, .spin .ic { animation: none; } }
+    @media (prefers-reduced-motion: reduce) { .alert.enter, .spin .ic { animation: none; } .icon-btn, .btn, .demo { transition: none; } }
   </style>
 </head>
 <body>
@@ -161,21 +166,43 @@ const chip = (x, y, t, c, s) => `<g><rect x="${x}" y="${y}" width="${16 + t.leng
 const user = `<circle cx="600" cy="420" r="11" fill="#0A0C0D" stroke="#FFFFFF" stroke-width="2"/><circle cx="600" cy="420" r="6" fill="#FFFFFF"/>` + chip(616, 426, 'ANDA', '#FFFFFF', '#7A8286');
 const narrow = () => $('mapwrap').clientWidth < 600;
 const evac = (lbl) => `<circle cx="780" cy="360" r="20" fill="#1F8B5C" stroke="#0A0C0D" stroke-width="2"/><svg x="768" y="348" width="24" height="24" viewBox="0 0 256 256" color="#0A0C0D">${icon('shield-check').replace(/<svg[^>]*>|<\/svg>/g, '')}</svg>` + (lbl ? (narrow() ? label(754, 312, 'TE-07', '') : label(710, 312, 'TE-07', 'Panakkukang')) : '');
-const zone = `<circle cx="560" cy="440" r="99" fill="rgba(248,70,30,.12)" stroke="#F8461E" stroke-width="2" stroke-dasharray="8 8"/>` + chip(508, 548, 'ZONA BAHAYA', '#F8461E', '#F8461E');
+const zone = `<g id="zoneGroup"><circle cx="560" cy="440" r="99" fill="rgba(248,70,30,.12)" stroke="#F8461E" stroke-width="2" stroke-dasharray="8 8"/>` + chip(508, 548, 'ZONA BAHAYA', '#F8461E', '#F8461E') + '</g>';
 const kaiju = `<path d="M452 440H540" stroke="#F8461E" stroke-width="2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M532 432l8 8-8 8" fill="none" stroke="#F8461E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>` + label(486, 452, 'GODZILLA', '62 km', true);
-const route = `<path d="M600 420V400H720V360H780" fill="none" stroke="#0A0C0D" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M600 420V400H720V360H780" fill="none" stroke="#1F8B5C" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`;
+const route = `<path class="route-line" d="M600 420V400H720V360H780" fill="none" stroke="#0A0C0D" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><path class="route-line" d="M600 420V400H720V360H780" fill="none" stroke="#1F8B5C" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`;
 const VIEWS = {
   aman: { f: [640, 420], ov: () => evac(true) + user },
   peringatan: { f: [640, 420], ov: () => zone + kaiju + route + evac(true) + user },
   arah: { f: [690, 400], ov: () => zone + route + evac(true) + user }
 };
-function fitMap() {
-  const el = $('mapwrap'); const w = el.clientWidth, h = el.clientHeight; const fy = VIEWS[state].f[1]; const fx = w < 600 ? 660 : VIEWS[state].f[0];
-  $('svg').setAttribute('viewBox', `${fx - w / 2} ${fy - h / 2} ${w} ${h}`);
+const EASE_OUT = 'cubic-bezier(0.23, 1, 0.32, 1)', EASE_IN_OUT = 'cubic-bezier(0.77, 0, 0.175, 1)';
+const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+/* cubic-bezier(0.77, 0, 0.175, 1) for the viewBox tween */
+function bezier(x1, y1, x2, y2) {
+  const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx, cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+  const X = t => ((ax * t + bx) * t + cx) * t, Y = t => ((ay * t + by) * t + cy) * t, dX = t => (3 * ax * t + 2 * bx) * t + cx;
+  return x => { let t = x; for (let i = 0; i < 8; i++) { const d = dX(t); if (Math.abs(d) < 1e-6) break; t -= (X(t) - x) / d; t = Math.min(1, Math.max(0, t)); } return Y(t); };
 }
+const easeInOut = bezier(0.77, 0, 0.175, 1);
+let vbRaf = 0;
+function fitMap(animate) {
+  const el = $('mapwrap'), svg = $('svg'); const w = el.clientWidth, h = el.clientHeight; const fy = VIEWS[state].f[1]; const fx = w < 600 ? 660 : VIEWS[state].f[0];
+  const to = [fx - w / 2, fy - h / 2, w, h]; cancelAnimationFrame(vbRaf);
+  const vb = svg.viewBox.baseVal; const from = vb && vb.width ? [vb.x, vb.y, vb.width, vb.height] : null;
+  if (!animate || reduce.matches || !from || (from[0] === to[0] && from[1] === to[1])) { svg.setAttribute('viewBox', to.join(' ')); return; }
+  const start = performance.now(), dur = 400;
+  const step = now => { const k = easeInOut(Math.min(1, (now - start) / dur)); svg.setAttribute('viewBox', from.map((v, i) => v + (to[i] - v) * k).join(' ')); if (k < 1) vbRaf = requestAnimationFrame(step); };
+  vbRaf = requestAnimationFrame(step);
+}
+function enterAlertMap() {
+  const z = $('zoneGroup');
+  if (reduce.matches) { if (z) z.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: EASE_OUT }); return; }
+  if (z) z.animate([{ opacity: 0, transform: 'scale(0.9)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 300, easing: EASE_OUT });
+  document.querySelectorAll('.route-line').forEach(r => { const len = r.getTotalLength(); r.style.strokeDasharray = len; r.animate([{ strokeDashoffset: len }, { strokeDashoffset: 0 }], { duration: 600, delay: 200, easing: EASE_IN_OUT, fill: 'backwards' }); });
+}
+function swapIn(el, dy) { if (!el || !el.firstElementChild) return; el.animate(reduce.matches ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: `translateY(${dy}px)` }, { opacity: 1, transform: 'none' }], { duration: 200, easing: EASE_OUT }); }
 
 /* tampilan per kondisi */
-function render() {
+function render(o = {}) {
   const top = $('top'), sheet = $('sheet');
   document.querySelectorAll('[data-updated]').forEach(e => e.textContent = updatedText());
   $('ov').innerHTML = VIEWS[state].ov();
@@ -194,7 +221,7 @@ function render() {
   }
   if (state === 'peringatan') {
     top.innerHTML = `
-      <div class="alert"><div class="alert-title">${icon('siren')}<h1 class="t-heading-l">EVAKUASI SEKARANG</h1></div>
+      <div class="alert${o.enter ? ' enter' : ''}"><div class="alert-title">${icon('siren')}<h1 class="t-heading-l">EVAKUASI SEKARANG</h1></div>
         <p class="t-body-l">GODZILLA diperkirakan tiba di pesisir Makassar dalam <span data-eta-long>${Math.floor(etaMin / 60)} jam ${etaMin % 60} menit</span>.</p></div>`;
     sheet.innerHTML = `
       <div class="group"><p class="t-label c2">Titik evakuasi terdekat</p>
@@ -223,16 +250,18 @@ function render() {
       <button class="btn secondary" data-act="back">${icon('x')}Akhiri navigasi</button>`;
   }
   document.querySelectorAll('[data-updated]').forEach(e => e.textContent = updatedText());
-  fitMap();
+  fitMap(o.move);
+  if (o.swap) { swapIn(sheet, 8); if (state === 'arah') swapIn(top, -8); }
+  if (o.enter) enterAlertMap();
 }
 
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-act]'); if (!b) return;
   const a = b.dataset.act;
-  if (a === 'simulate') { state = 'peringatan'; alertAt = wita(new Date()); etaMin = 98; render(); $('announce').textContent = 'Peringatan evakuasi. Segera menuju titik evakuasi TE-07 Panakkukang.'; }
-  if (a === 'arah') { state = 'arah'; render(); }
-  if (a === 'back') { state = 'peringatan'; render(); }
-  if (a === 'reset') { state = 'aman'; render(); }
+  if (a === 'simulate') { state = 'peringatan'; alertAt = wita(new Date()); etaMin = 98; render({ enter: true, swap: true, move: true }); $('announce').textContent = 'Peringatan evakuasi. Segera menuju titik evakuasi TE-07 Panakkukang.'; }
+  if (a === 'arah') { state = 'arah'; render({ swap: true, move: true }); }
+  if (a === 'back') { state = 'peringatan'; render({ swap: true, move: true }); }
+  if (a === 'reset') { state = 'aman'; render({ swap: true, move: true }); }
   if (a === 'refresh') refresh();
 });
 function refresh() { const r = $('refresh'); r.classList.remove('spin'); void r.offsetWidth; r.classList.add('spin'); render(); }

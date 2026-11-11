@@ -66,6 +66,15 @@
     .layer svg { display: block; width: 7200px; height: 844px; }
     .animate .layer, .animate .pin { transition: transform 320ms var(--ease-in-out); }
     .pins { position: absolute; inset: 0; pointer-events: none; }
+    .overlay { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+    .flow { stroke-dasharray: 4 12; animation: flow .8s linear infinite; }
+    @keyframes flow { from { stroke-dashoffset: 16; } to { stroke-dashoffset: 0; } }
+    .pin .label { transition: border-color 150ms ease; }
+    .pin.hl .label { border-color: var(--text); }
+    .row { transition: background-color 150ms ease; }
+    .row.hl { background: var(--raised); }
+    .chart i { transform-origin: bottom; }
+    .chart.wave i { transform-origin: center; }
     .pin { position: absolute; left: 0; top: 0; pointer-events: auto; display: flex; align-items: center; gap: 8px; }
     .pin .dot { position: relative; width: 24px; height: 24px; margin: -12px 0 0 -12px; display: grid; place-items: center; }
     .pin .label { display: flex; gap: 8px; padding: 4px 8px; border-radius: 4px; background: var(--canvas); border: 1px solid var(--border-strong); margin-top: -12px; white-space: nowrap; }
@@ -133,7 +142,7 @@
     .public { display: flex; align-items: center; gap: 12px; background: var(--raised); border-radius: 4px; padding: 12px; }
 
     /* banner */
-    .banner { position: absolute; top: 12px; left: 372px; right: 372px; z-index: 6; display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; background: var(--alert); color: var(--on-accent); animation: drop 200ms ease-out; transition: opacity 200ms; }
+    .banner { position: absolute; top: 12px; left: 372px; right: 372px; z-index: 6; display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; background: var(--alert); color: var(--on-accent); transition: opacity 200ms; }
     .banner .text { flex: 1; min-width: 0; }
     .banner button { background: var(--canvas); color: var(--text); padding: 8px 16px; border-radius: 4px; font-weight: 600; min-height: 40px; }
     @keyframes drop { from { transform: translateY(-8px); opacity: 0; } to { transform: none; opacity: 1; } }
@@ -157,7 +166,7 @@
     @media (prefers-reduced-motion: reduce) {
       .pulse { animation: none; transform: scale(.5); opacity: .6; }
       .pulse.p2, .pulse.p3 { display: none; }
-      .banner { animation: none; }
+      .flow { animation: none; stroke-dasharray: none; }
       .animate .layer, .animate .pin, .signal-btn .chev, .collapse, .icon-btn, .toolbar .ghost { transition: none; }
       .panel, .toolbar { transition: opacity 200ms var(--ease-out); }
       .hidden-panels .panel, .hidden-panels .toolbar { transform: none; }
@@ -201,7 +210,15 @@ orders</span></div>
           <use href="#world" x="0"/><use href="#world" x="720"/><use href="#world" x="1440"/><use href="#world" x="2160"/><use href="#world" x="2880"/>
         </svg>
       </div>
-      <div class="pins" id="pins"></div>
+      <div class="pins" id="pinsWrap">
+        <svg class="overlay" aria-hidden="true">
+          <path id="trail" fill="none" stroke="rgba(248,70,30,.48)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+          <path id="trailFlow" class="flow" fill="none" stroke="#F8461E" stroke-width="2" stroke-linecap="round"/>
+          <g id="fixes" fill="#F8461E"></g>
+          <g id="city"><circle r="4" fill="#FFFFFF"/><text x="-10" y="24" text-anchor="end" font-family="Fira Mono, monospace" font-size="12" font-weight="500" fill="#FFFFFF" stroke="#0A0C0D" stroke-width="4" paint-order="stroke" stroke-linejoin="round">MAKASSAR</text></g>
+        </svg>
+        <div id="pins"></div>
+      </div>
     </div>
 
     <aside class="panel left" id="left" aria-label="Active kaiju">
@@ -302,6 +319,8 @@ const KAIJU = [
 ];
 const LV = { critical: 'CRITICAL', elevated: 'ELEVATED', monitoring: 'MONITORING' };
 let selected = 'godzilla', openSignal = null, etaSeconds = 98 * 60 + 12;
+const lastSig = { godzilla: 42, unknown07: 130, ghidorah: 6 * 3600 + 31 * 60, rodan: 18 * 3600 + 5 * 60, mothra: 27 * 3600 + 40 * 60 };
+const ago = id => { const s = lastSig[id]; return s < 3600 ? `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')} ago` : `${Math.floor(s / 3600)} h ${Math.floor(s / 60) % 60} m ago`; };
 
 const $ = id => document.getElementById(id);
 const fmt = s => [Math.floor(s / 3600), Math.floor(s / 60) % 60, s % 60].map(v => String(v).padStart(2, '0')).join(':');
@@ -311,7 +330,7 @@ function renderList() {
     <button class="row" aria-pressed="${k.id === selected}" data-id="${k.id}">
       <span class="glyph ${k.level}" aria-hidden="true"></span>
       <span class="main"><span class="t-numeral-m">${k.name}</span><span class="t-label c2">${k.loc}</span></span>
-      <span class="side"><span class="tag ${k.level}">${LV[k.level]}</span><span class="t-mono c2">${k.ago}</span></span>
+      <span class="side"><span class="tag ${k.level}">${LV[k.level]}</span><span class="t-mono c2" data-ago="${k.id}">${ago(k.id)}</span></span>
     </button>`).join('');
 }
 const COPIES = [-2, -1, 0, 1, 2];
@@ -340,7 +359,7 @@ function renderRight() {
       <span class="tag ${k.level}">${LV[k.level]}</span>
     </div>
     ${threat}
-    <div class="facts">${k.facts.map(([l, v]) => `<div class="fact"><span class="t-label">${l}</span><span class="t-numeral-m">${v}</span></div>`).join('')}</div>
+    <div class="facts">${k.facts.map(([l, v]) => `<div class="fact"><span class="t-label">${l}</span><span class="t-numeral-m"${l === 'Last signal' ? ` data-ago="${k.id}"` : ''}>${l === 'Last signal' ? ago(k.id) : v}</span></div>`).join('')}</div>
     <div class="signals"><p class="t-label c2" style="margin-bottom:8px">Detection signals</p>
       ${k.signals.map((s, i) => `
       <div class="signal">
@@ -371,7 +390,7 @@ function select(id, pan) {
     renderRight();
     $('right').animate(reduce.matches ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(4px)' }, { opacity: 1, transform: 'none' }], { duration: 160, easing: EASE_OUT });
   }
-  if (pan) centerOn(KAIJU.find(k => k.id === id), true);
+  if (pan) flyToKaiju(KAIJU.find(k => k.id === id));
 }
 
 /* ---- map pan & zoom, wraps horizontally ---- */
@@ -398,6 +417,12 @@ function placePins() {
     const d = Math.abs(x - W / 2); if (!best[k.id] || d < best[k.id].d) best[k.id] = { p, d };
   });
   document.querySelectorAll('.pin').forEach(p => { const on = best[p.dataset.id].p === p; p.tabIndex = on ? 0 : -1; on ? p.removeAttribute('aria-hidden') : p.setAttribute('aria-hidden', 'true'); });
+  const g = best.godzilla && best.godzilla.p; if (!g) return;
+  const off = view.tx + +g.dataset.copy * w, P = ([x, y]) => [Math.round(x * view.s + off), Math.round(y * view.s + view.ty)];
+  const d = 'M' + TRACK.map(pt => P(pt).join(' ')).join('L');
+  $('trail').setAttribute('d', d); $('trailFlow').setAttribute('d', d);
+  $('fixes').innerHTML = TRACK.slice(0, -1).map(pt => { const [x, y] = P(pt); return `<circle cx="${x}" cy="${y}" r="3"/>`; }).join('');
+  const [mx, my] = P(MAKASSAR); $('city').setAttribute('transform', `translate(${mx} ${my})`);
 }
 function animated(fn) {
   cancelAnimationFrame(raf);
@@ -419,6 +444,42 @@ function centerOn(k, anim) {
   anim ? animated(go) : (go(), apply());
 }
 function fit() { view.s = minScale(); view.tx = (map.clientWidth - 1440 * view.s) / 2; view.ty = (map.clientHeight - 844 * view.s) / 2; apply(); }
+
+/* track of the critical kaiju, in map pixels */
+const K = 1440 / (2 * Math.PI);
+const proj = (lon, lat) => { const f = lat * Math.PI / 180; return [720 + K * (lon - 150) * Math.PI / 180, 470 - K * 1.25 * Math.log(Math.tan(Math.PI / 4 + 0.4 * f))]; };
+const TRACK = [[103.5, -6.8], [105.8, -6.0], [108.5, -5.3], [112, -5.7], [115.5, -5.8], [117.6, -5.5]].map(p => proj(...p)).concat([[594, 492]]);
+const MAKASSAR = proj(119.41, -5.13);
+
+/* fly: pan and zoom together, with a zoom-out bump for long trips */
+function bezier(x1, y1, x2, y2) {
+  const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx, cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+  const X = t => ((ax * t + bx) * t + cx) * t, Y = t => ((ay * t + by) * t + cy) * t, dX = t => (3 * ax * t + 2 * bx) * t + cx;
+  return x => { let t = x; for (let i = 0; i < 8; i++) { const d = dX(t); if (Math.abs(d) < 1e-6) break; t = Math.min(1, Math.max(0, t - (X(t) - x) / d)); } return Y(t); };
+}
+const easeInOut = bezier(0.77, 0, 0.175, 1);
+function flyTo(cx1, cy1, s1, dur, bump = 0) {
+  cancelAnimationFrame(raf); clearTimeout(settle); map.classList.remove('animate');
+  const W = map.clientWidth, H = map.clientHeight, s0 = view.s;
+  const cx0 = (W / 2 - view.tx) / s0, cy0 = (H / 2 - view.ty) / s0;
+  cx1 += Math.round((cx0 - cx1) / 1440) * 1440;
+  const set = (cx, cy, sc) => { view.s = sc; view.tx = W / 2 - cx * sc; view.ty = H / 2 - cy * sc; };
+  if (reduce.matches) { set(cx1, cy1, s1); apply(); return; }
+  const t0 = performance.now();
+  const step = now => {
+    const k = easeInOut(Math.min(1, (now - t0) / dur));
+    set(cx0 + (cx1 - cx0) * k, cy0 + (cy1 - cy0) * k, s0 * Math.pow(s1 / s0, k) * (1 - bump * Math.sin(Math.PI * k)));
+    apply(false);
+    if (k < 1) raf = requestAnimationFrame(step); else apply();
+  };
+  raf = requestAnimationFrame(step);
+}
+function flyToKaiju(k) {
+  const W = map.clientWidth, cx = (W / 2 - view.tx) / view.s;
+  let dx = k.x - cx; dx -= Math.round(dx / 1440) * 1440;
+  const far = Math.abs(dx * view.s) > W * 0.4;
+  flyTo(k.x, k.y, view.s, far ? 800 : 420, far ? 0.35 : 0);
+}
 
 /* drag with a short glide on release */
 let drag = null, samples = [];
@@ -450,7 +511,7 @@ map.addEventListener('pointerup', e => {
 map.addEventListener('wheel', e => { e.preventDefault(); cancelAnimationFrame(raf); const r = map.getBoundingClientRect(); zoomAt(e.deltaY < 0 ? 1.15 : 1 / 1.15, e.clientX - r.left, e.clientY - r.top); }, { passive: false });
 $('zoomIn').onclick = () => zoomAt(1.4, map.clientWidth / 2, map.clientHeight / 2, true);
 $('zoomOut').onclick = () => zoomAt(1 / 1.4, map.clientWidth / 2, map.clientHeight / 2, true);
-$('recenter').onclick = () => centerOn(KAIJU.find(k => k.id === selected), true);
+$('recenter').onclick = () => flyToKaiju(KAIJU.find(k => k.id === selected));
 window.addEventListener('resize', () => apply());
 
 /* ---- interactions ---- */
@@ -461,7 +522,39 @@ $('right').addEventListener('click', e => {
   const i = +b.dataset.sig, open = b.getAttribute('aria-expanded') !== 'true';
   openSignal = open ? i : null;
   $('right').querySelectorAll('.signal-btn').forEach(x => { const on = x === b && open; x.setAttribute('aria-expanded', on); $(x.getAttribute('aria-controls')).classList.toggle('open', on); });
+  if (open && !reduce.matches) $(b.getAttribute('aria-controls')).querySelectorAll('.chart i').forEach((bar, n) => bar.animate([{ transform: 'scaleY(0)' }, { transform: 'scaleY(1)' }], { duration: 240, delay: 60 + n * 12, easing: EASE_OUT, fill: 'backwards' }));
 });
+
+/* linked hover between list and map */
+const hl = (id, on) => { document.querySelectorAll(`.pin[data-id="${id}"]`).forEach(p => p.classList.toggle('hl', on)); const r = $('list').querySelector(`.row[data-id="${id}"]`); if (r) r.classList.toggle('hl', on); };
+for (const [el, sel] of [[$('list'), '.row'], [$('pins'), '.pin']]) {
+  el.addEventListener('pointerover', e => { const t = e.target.closest(sel); if (t) hl(t.dataset.id, true); });
+  el.addEventListener('pointerout', e => { const t = e.target.closest(sel); if (t && !t.contains(e.relatedTarget)) hl(t.dataset.id, false); });
+}
+
+/* simulated live feed */
+const LIVE = [
+  { id: 'godzilla', sig: 0, next: b => Math.min(64, Math.max(48, b[b.length - 1] + Math.round((Math.random() * 8 - 3) / 2) * 2)) },
+  { id: 'unknown07', sig: 1, next: () => [24, 40, 52, 64, 32][Math.floor(Math.random() * 5)] }
+];
+let liveTurn = 0;
+function liveEvent() {
+  const ev = LIVE[liveTurn++ % LIVE.length], k = KAIJU.find(x => x.id === ev.id), s = k.signals[ev.sig];
+  lastSig[ev.id] = 0; document.querySelectorAll(`[data-ago="${ev.id}"]`).forEach(e => e.textContent = ago(ev.id));
+  if (s.chart) { s.chart.bars.push(ev.next(s.chart.bars)); s.chart.bars.shift(); }
+  const row = $('list').querySelector(`.row[data-id="${ev.id}"]`);
+  if (row) row.animate([{ backgroundColor: 'rgba(248,70,30,.24)' }, { backgroundColor: getComputedStyle(row).backgroundColor }], { duration: 1200, easing: EASE_OUT });
+  document.querySelectorAll(`.pin[data-id="${ev.id}"]:not([aria-hidden]) .label`).forEach(l => l.animate([{ boxShadow: '0 0 0 4px rgba(248,70,30,.48)' }, { boxShadow: '0 0 0 0 rgba(248,70,30,0)' }], { duration: 900, easing: EASE_OUT }));
+  const open = selected === ev.id && openSignal === ev.sig && s.chart && document.querySelector(`#sig-${ev.sig} .chart`);
+  if (open) {
+    const c = document.querySelector(`#sig-${ev.sig} .chart`); c.firstElementChild.remove();
+    const hot = (h, i) => (s.chart.hotFrom !== undefined && i >= s.chart.hotFrom) || (s.chart.hotMin !== undefined && h >= s.chart.hotMin);
+    [...c.children].forEach((bar, i) => bar.className = hot(s.chart.bars[i], i) ? 'hot' : '');
+    const h = s.chart.bars[s.chart.bars.length - 1], nb = document.createElement('i'); nb.style.height = h + 'px'; if (hot(h, s.chart.bars.length - 1)) nb.className = 'hot'; c.appendChild(nb);
+    if (!reduce.matches) nb.animate([{ transform: 'scaleY(0)' }, { transform: 'scaleY(1)' }], { duration: 240, easing: EASE_OUT });
+  }
+}
+setInterval(liveEvent, 20000);
 const stage = $('stage');
 function togglePanels() {
   const hidden = stage.classList.toggle('hidden-panels');
@@ -486,11 +579,18 @@ function tick() {
   const eta = document.getElementById('eta');
   if (eta && selected === 'godzilla') eta.textContent = fmt(etaSeconds);
   const be = document.getElementById('bannerEta'); if (be) be.textContent = fmt(etaSeconds).slice(0, 5);
+  for (const id in lastSig) lastSig[id]++;
+  document.querySelectorAll('[data-ago]').forEach(e => e.textContent = ago(e.dataset.ago));
 }
 setInterval(tick, 1000);
 
 renderList(); renderRight(); renderPins(); fit(); tick();
-view.s = minScale() * 2; centerOn(KAIJU[0], false);
+/* intro: start on the whole world, then fly to the critical kaiju */
+if (reduce.matches) { view.s = minScale() * 2; centerOn(KAIJU[0], false); }
+else {
+  setTimeout(() => flyTo(KAIJU[0].x, KAIJU[0].y, minScale() * 2, 1100), 350);
+  ['left', 'banner', 'right'].forEach((id, i) => $(id).animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 240, delay: 900 + i * 60, easing: EASE_OUT, fill: 'backwards' }));
+}
 </script>
 </body>
 </html>

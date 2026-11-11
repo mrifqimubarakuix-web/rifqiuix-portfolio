@@ -47,6 +47,9 @@
     .icon-btn, .btn, .demo { transition: transform 160ms var(--ease-out); }
     .icon-btn:active, .btn:active, .demo:active { transform: scale(0.97); }
     #zoneGroup { transform-box: fill-box; transform-origin: center; }
+    .breath { transform-box: fill-box; transform-origin: center; animation: breath 2.4s var(--ease-out) infinite; }
+    @keyframes breath { from { transform: scale(1); opacity: .6; } to { transform: scale(2.4); opacity: 0; } }
+    .step { transition: background-color 200ms var(--ease-out); }
     .spin .ic { animation: spin 600ms var(--ease-out); }
     @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -105,7 +108,7 @@
       .desk { display: flex; }
       .mob { display: none; }
     }
-    @media (prefers-reduced-motion: reduce) { .alert.enter, .spin .ic { animation: none; } .icon-btn, .btn, .demo { transition: none; } }
+    @media (prefers-reduced-motion: reduce) { .alert.enter, .spin .ic { animation: none; } .breath { display: none; } .icon-btn, .btn, .demo { transition: none; } }
   </style>
 </head>
 <body>
@@ -163,12 +166,12 @@ function label(x, y, name, meta, sel) {
     <text x="${x + 8}" y="${y + 16}" font-family="Fira Mono, monospace" font-size="12" font-weight="500" fill="#FFFFFF">${name}${meta ? `<tspan dx="8" font-weight="400" fill="#C5C5C5">${meta}</tspan>` : ''}</text></g>`;
 }
 const chip = (x, y, t, c, s) => `<g><rect x="${x}" y="${y}" width="${16 + t.length * mono}" height="24" rx="4" fill="#0A0C0D" stroke="${s}"/><text x="${x + 8}" y="${y + 16}" font-family="Fira Mono, monospace" font-size="12" font-weight="500" fill="${c}">${t}</text></g>`;
-const user = `<circle cx="600" cy="420" r="11" fill="#0A0C0D" stroke="#FFFFFF" stroke-width="2"/><circle cx="600" cy="420" r="6" fill="#FFFFFF"/>` + chip(616, 426, 'ANDA', '#FFFFFF', '#7A8286');
+const user = `<g id="userG"><circle class="breath" cx="600" cy="420" r="11" fill="none" stroke="#FFFFFF" stroke-width="2"/><circle cx="600" cy="420" r="11" fill="#0A0C0D" stroke="#FFFFFF" stroke-width="2"/><circle cx="600" cy="420" r="6" fill="#FFFFFF"/>` + chip(616, 426, 'ANDA', '#FFFFFF', '#7A8286') + '</g>';
 const narrow = () => $('mapwrap').clientWidth < 600;
 const evac = (lbl) => `<circle cx="780" cy="360" r="20" fill="#1F8B5C" stroke="#0A0C0D" stroke-width="2"/><svg x="768" y="348" width="24" height="24" viewBox="0 0 256 256" color="#0A0C0D">${icon('shield-check').replace(/<svg[^>]*>|<\/svg>/g, '')}</svg>` + (lbl ? (narrow() ? label(754, 312, 'TE-07', '') : label(710, 312, 'TE-07', 'Panakkukang')) : '');
 const zone = `<g id="zoneGroup"><circle cx="560" cy="440" r="99" fill="rgba(248,70,30,.12)" stroke="#F8461E" stroke-width="2" stroke-dasharray="8 8"/>` + chip(508, 548, 'ZONA BAHAYA', '#F8461E', '#F8461E') + '</g>';
 const kaiju = `<path d="M452 440H540" stroke="#F8461E" stroke-width="2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M532 432l8 8-8 8" fill="none" stroke="#F8461E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>` + label(486, 452, 'GODZILLA', '62 km', true);
-const route = `<path class="route-line" d="M600 420V400H720V360H780" fill="none" stroke="#0A0C0D" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><path class="route-line" d="M600 420V400H720V360H780" fill="none" stroke="#1F8B5C" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`;
+const route = `<path class="route-line" d="M600 420V400H720V360H780" fill="none" stroke="#0A0C0D" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><path class="route-line" d="M600 420V400H720V360H780" fill="none" stroke="#1F8B5C" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path id="walked" fill="none" stroke="#7A8286" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`;
 const VIEWS = {
   aman: { f: [640, 420], ov: () => evac(true) + user },
   peringatan: { f: [640, 420], ov: () => zone + kaiju + route + evac(true) + user },
@@ -236,17 +239,17 @@ function render(o = {}) {
   }
   if (state === 'arah') {
     top.innerHTML = `
-      <div class="next">${icon('arrow-bend-up-right', 32)}<div><p class="t-numeral-l">400 m</p><p class="t-body-l">Belok kanan ke Jl. Sungai Saddang</p></div>
+      <div class="next"><span id="nextIcon">${icon('arrow-bend-up-right', 32)}</span><div><p class="t-numeral-l" id="nextDist">400 m</p><p class="t-body-l" id="nextText">Belok kanan ke Jl. Sungai Saddang</p></div>
         <button class="icon-btn" data-act="back" aria-label="Tutup navigasi">${icon('x')}</button></div>
       <div class="strip">${icon('siren', 16)}<p class="t-label">GODZILLA tiba dalam <span data-eta>${etaText()}</span> · tetap di rute</p></div>`;
     sheet.innerHTML = `
-      <div class="summary"><div><p class="t-numeral-l">60 mnt</p><p class="t-label c2">4,8 km · tiba di TE-07 Panakkukang</p></div><span class="tag safe">RUTE AMAN</span></div>
+      <div class="summary"><div><p class="t-numeral-l"><span id="sumMin">60</span> mnt</p><p class="t-label c2"><span id="sumKm">4,8</span> km lagi · simulasi jalan kaki ×60</p></div><span class="tag safe">RUTE AMAN</span></div>
       <div class="steps">
-        <div class="step now">${icon('arrow-up')}<span class="t-body-strong">Jl. Penghibur</span><span class="t-mono">sekarang</span></div>
-        <div class="step">${icon('arrow-bend-up-right')}<span class="t-body-strong">Jl. Sungai Saddang</span><span class="t-mono c2">2,4 km</span></div>
-        <div class="step">${icon('arrow-bend-up-left')}<span class="t-body-strong">Jl. Veteran</span><span class="t-mono c2">0,8 km</span></div>
-        <div class="step">${icon('arrow-bend-up-right')}<span class="t-body-strong">Jl. Pengayoman</span><span class="t-mono c2">1,2 km</span></div>
-        <div class="step"><span class="cs">${icon('shield-check')}</span><span class="t-body-strong">TE-07 Panakkukang</span><span class="t-mono c2">Tujuan</span></div></div>
+        <div class="step now" data-step="0">${icon('arrow-up')}<span class="t-body-strong">Jl. Penghibur</span><span class="t-mono" data-d="0,4 km">sekarang</span></div>
+        <div class="step" data-step="1">${icon('arrow-bend-up-right')}<span class="t-body-strong">Jl. Sungai Saddang</span><span class="t-mono c2" data-d="2,4 km">2,4 km</span></div>
+        <div class="step" data-step="2">${icon('arrow-bend-up-left')}<span class="t-body-strong">Jl. Veteran</span><span class="t-mono c2" data-d="0,8 km">0,8 km</span></div>
+        <div class="step" data-step="3">${icon('arrow-bend-up-right')}<span class="t-body-strong">Jl. Pengayoman</span><span class="t-mono c2" data-d="1,2 km">1,2 km</span></div>
+        <div class="step" data-step="4"><span class="cs">${icon('shield-check')}</span><span class="t-body-strong">TE-07 Panakkukang</span><span class="t-mono c2" data-d="Tujuan">Tujuan</span></div></div>
       <button class="btn secondary" data-act="back">${icon('x')}Akhiri navigasi</button>`;
   }
   document.querySelectorAll('[data-updated]').forEach(e => e.textContent = updatedText());
@@ -255,19 +258,58 @@ function render(o = {}) {
   if (o.enter) enterAlertMap();
 }
 
+/* simulated walk along the route, 1 map unit = 20 m, 80 m per minute, ×60 */
+const ROUTE = [[600, 420], [600, 400], [720, 400], [720, 360], [780, 360]];
+const SEGS = ROUTE.slice(1).map((p, i) => Math.hypot(p[0] - ROUTE[i][0], p[1] - ROUTE[i][1]));
+const TOTAL = SEGS.reduce((a, b) => a + b, 0);
+const TURNS = [['arrow-bend-up-right', 'Belok kanan ke Jl. Sungai Saddang'], ['arrow-bend-up-left', 'Belok kiri ke Jl. Veteran'], ['arrow-bend-up-right', 'Belok kanan ke Jl. Pengayoman'], ['shield-check', 'Tiba di TE-07 Panakkukang']];
+const walk = { d: 0, raf: 0, seg: -1 };
+function posAt(d) {
+  let rest = d, i = 0;
+  while (i < SEGS.length - 1 && rest > SEGS[i]) { rest -= SEGS[i]; i++; }
+  rest = Math.min(rest, SEGS[i]);
+  const [a, b] = [ROUTE[i], ROUTE[i + 1]], k = rest / SEGS[i];
+  return { x: a[0] + (b[0] - a[0]) * k, y: a[1] + (b[1] - a[1]) * k, seg: i, toEnd: SEGS[i] - rest, pts: ROUTE.slice(0, i + 1) };
+}
+const km = m => (m / 1000).toFixed(1).replace('.', ',');
+function updateWalk() {
+  const g = $('userG'); if (!g || state !== 'arah') return;
+  const p = posAt(walk.d), done = walk.d >= TOTAL;
+  g.setAttribute('transform', `translate(${(p.x - 600).toFixed(1)} ${(p.y - 420).toFixed(1)})`);
+  $('walked').setAttribute('d', 'M' + p.pts.concat([[p.x, p.y]]).map(q => q.join(' ')).join('L'));
+  const seg = done ? 4 : p.seg;
+  if (seg !== walk.seg) {
+    walk.seg = seg;
+    $('nextIcon').innerHTML = icon(done ? 'shield-check' : TURNS[p.seg][0], 32);
+    $('nextText').textContent = done ? 'Anda sudah sampai di TE-07 Panakkukang' : TURNS[p.seg][1];
+    document.querySelectorAll('.step').forEach(st => { const n = +st.dataset.step, on = n === seg, d = st.lastElementChild;
+      st.classList.toggle('now', on); d.textContent = on && !done ? 'sekarang' : d.dataset.d; d.classList.toggle('c2', !on); });
+  }
+  $('nextDist').textContent = done ? 'Tiba' : `${Math.max(10, Math.round(p.toEnd * 20 / 10) * 10)} m`;
+  const left = (TOTAL - walk.d) * 20;
+  $('sumMin').textContent = Math.ceil(left / 80); $('sumKm').textContent = km(left);
+}
+function startWalk() {
+  cancelAnimationFrame(walk.raf); walk.d = 0; walk.seg = -1; updateWalk();
+  if (reduce.matches) return;
+  let last = performance.now();
+  const step = now => { walk.d = Math.min(TOTAL, walk.d + 4 * (now - last) / 1000); last = now; updateWalk(); if (walk.d < TOTAL && state === 'arah') walk.raf = requestAnimationFrame(step); };
+  walk.raf = requestAnimationFrame(step);
+}
+
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-act]'); if (!b) return;
   const a = b.dataset.act;
   if (a === 'simulate') { state = 'peringatan'; alertAt = wita(new Date()); etaMin = 98; render({ enter: true, swap: true, move: true }); $('announce').textContent = 'Peringatan evakuasi. Segera menuju titik evakuasi TE-07 Panakkukang.'; }
-  if (a === 'arah') { state = 'arah'; render({ swap: true, move: true }); }
-  if (a === 'back') { state = 'peringatan'; render({ swap: true, move: true }); }
+  if (a === 'arah') { state = 'arah'; render({ swap: true, move: true }); startWalk(); }
+  if (a === 'back') { cancelAnimationFrame(walk.raf); state = 'peringatan'; render({ swap: true, move: true }); }
   if (a === 'reset') { state = 'aman'; render({ swap: true, move: true }); }
   if (a === 'refresh') refresh();
 });
-function refresh() { const r = $('refresh'); r.classList.remove('spin'); void r.offsetWidth; r.classList.add('spin'); render(); }
+function refresh() { const r = $('refresh'); r.classList.remove('spin'); void r.offsetWidth; r.classList.add('spin'); render(); walk.seg = -1; updateWalk(); }
 $('refresh').onclick = refresh;
 setInterval(() => { if (etaMin > 0) etaMin--; document.querySelectorAll('[data-eta]').forEach(e => e.textContent = etaText()); document.querySelectorAll('[data-eta-long]').forEach(e => e.textContent = `${Math.floor(etaMin / 60)} jam ${etaMin % 60} menit`); }, 60000);
-window.addEventListener('resize', () => { $('ov').innerHTML = VIEWS[state].ov(); fitMap(); });
+window.addEventListener('resize', () => { $('ov').innerHTML = VIEWS[state].ov(); fitMap(); walk.seg = -1; updateWalk(); });
 render();
 </script>
 </body>

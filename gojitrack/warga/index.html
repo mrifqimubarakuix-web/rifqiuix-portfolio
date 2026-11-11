@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#121516">
+  <title>Gojitrack untuk warga, demo — Muh. Rifqi Mubarak</title>
+  <meta name="description" content="Demo aplikasi publik Gojitrack untuk menerima peringatan evakuasi kaiju dan arah ke titik evakuasi terdekat.">
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;500&family=Fustat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20fill%3D%22%23F8461E%22%20fill-rule%3D%22evenodd%22%20d%3D%22M6%208L8%202L12%206L16%200L20%206L24%202L26%208L30%2014L24%2018L22%2026L20%2030H12L10%2026L8%2018L2%2014ZM8%2012L14%2014V16H10ZM24%2012L18%2014V16H22ZM13%2024H15V26H13ZM17%2024H19V26H17Z%22%2F%3E%3C%2Fsvg%3E">
+  <style>
+    :root {
+      --canvas: #0A0C0D; --surface: #121516; --raised: #1A1E20; --land: #15191B;
+      --border: #2A2F32; --border-strong: #7A8286;
+      --text: #FFFFFF; --text-2: #C5C5C5; --on-accent: #0A0C0D;
+      --alert: #F8461E; --safe: #1F8B5C;
+      --sans: "Fustat", system-ui, sans-serif; --mono: "Fira Mono", ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: var(--canvas); color: var(--text); font-family: var(--sans); font-size: 14px; line-height: 20px; -webkit-font-smoothing: antialiased; }
+    button, a { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; text-decoration: none; }
+    :focus-visible { outline: 2px solid var(--text); outline-offset: 2px; border-radius: 4px; }
+    .ic { display: block; flex: none; }
+    .t-numeral-l { font: 500 24px/32px var(--mono); }
+    .t-numeral-m { font: 500 16px/24px var(--mono); }
+    .t-mono { font: 400 12px/16px var(--mono); }
+    .t-mono-strong { font: 500 12px/16px var(--mono); }
+    .t-title { font: 600 16px/24px var(--sans); }
+    .t-heading { font: 600 20px/28px var(--sans); }
+    .t-heading-l { font: 700 24px/32px var(--sans); }
+    .t-body-l { font: 400 16px/24px var(--sans); }
+    .t-body-strong { font: 600 14px/20px var(--sans); }
+    .t-label { font: 500 12px/16px var(--sans); }
+    .c2 { color: var(--text-2); } .ca { color: var(--alert); } .cs { color: var(--safe); }
+
+    .nav { height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; background: var(--surface); border-bottom: 1px solid var(--border); position: relative; z-index: 3; }
+    .brand { display: flex; align-items: center; gap: 8px; }
+    .brand-text { display: flex; flex-direction: column; }
+    .nav-right { display: flex; align-items: center; gap: 16px; }
+    .updated-desk { display: none; }
+    .icon-btn { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 4px; }
+    .icon-btn:hover { background: var(--raised); }
+    .spin .ic { animation: spin 600ms ease-out; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .app { height: calc(100dvh - 56px); display: grid; grid-template-columns: 100%; grid-template-rows: auto 1fr auto; grid-template-areas: "top" "map" "sheet"; }
+    .top { grid-area: top; }
+    .mapwrap { grid-area: map; position: relative; overflow: hidden; min-height: 200px; }
+    .mapwrap svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    .sheet { grid-area: sheet; background: var(--surface); border-top: 1px solid var(--border); border-radius: 8px 8px 0 0; padding: 16px 12px calc(16px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 16px; position: relative; z-index: 2; }
+
+    .alert { background: var(--alert); color: var(--on-accent); padding: 12px 12px 16px; display: flex; flex-direction: column; gap: 4px; animation: drop 240ms ease-out; }
+    .alert-title { display: flex; align-items: center; gap: 8px; }
+    @keyframes drop { from { transform: translateY(-12px); opacity: 0; } to { transform: none; opacity: 1; } }
+    .next { background: var(--safe); color: var(--on-accent); padding: 12px 4px 12px 12px; display: flex; align-items: center; gap: 12px; }
+    .next > div { flex: 1; }
+    .strip { background: var(--alert); color: var(--on-accent); padding: 8px 12px; display: flex; align-items: center; gap: 8px; }
+
+    .status { display: flex; align-items: center; gap: 12px; }
+    .box { width: 40px; height: 40px; border-radius: 4px; display: grid; place-items: center; flex: none; background: var(--raised); }
+    .box.safe { background: var(--safe); color: var(--on-accent); }
+    .group { display: flex; flex-direction: column; gap: 8px; }
+    .kaiju { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--raised); border-radius: 4px; }
+    .kaiju > div { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .ring { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--alert); flex: none; }
+    .tag { display: inline-flex; padding: 4px 8px; border-radius: 4px; font: 500 12px/16px var(--mono); white-space: nowrap; }
+    .tag.mon { box-shadow: inset 0 0 0 1px var(--border-strong); color: var(--text-2); }
+    .tag.safe { background: var(--safe); color: var(--on-accent); }
+    .line { display: flex; align-items: center; gap: 8px; }
+    .line > :nth-child(2) { flex: 1; }
+    .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .fact { display: flex; flex-direction: column; gap: 4px; }
+    .fact .t-label { color: var(--text-2); }
+    .btn { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 12px 20px; border-radius: 4px; font: 600 16px/24px var(--sans); width: 100%; }
+    .btn.secondary { box-shadow: inset 0 0 0 1px var(--border-strong); }
+    .btn.safe { background: var(--safe); color: var(--on-accent); }
+    .demo { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; border-radius: 4px; color: var(--text-2); font: 500 12px/16px var(--mono); border: 1px dashed var(--border-strong); }
+    .demo:hover { color: var(--text); }
+    .steps { display: flex; flex-direction: column; }
+    .step { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--border); }
+    .step span:nth-child(2) { flex: 1; }
+    .step.now { background: var(--raised); border-radius: 4px; border-top: 0; padding: 12px; margin-bottom: 1px; }
+    .summary { display: flex; align-items: center; gap: 12px; }
+    .summary > div { flex: 1; }
+    .desk { display: none; }
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+    @media (min-width: 960px) {
+      .updated-desk { display: block; }
+      .app { grid-template-columns: 480px 1fr; grid-template-rows: auto 1fr; grid-template-areas: "top map" "sheet map"; }
+      .top, .sheet { background: var(--surface); }
+      .top { padding: 12px 12px 0; border-right: 1px solid var(--border); }
+      .top:empty { padding: 0; }
+      .sheet { border-radius: 0; border-top: 0; border-right: 1px solid var(--border); padding: 16px 12px; justify-content: flex-start; overflow: auto; }
+      .alert, .next { border-radius: 8px; padding: 16px; }
+      .strip { border-radius: 4px; margin-top: 12px; }
+      .desk { display: flex; }
+      .mob { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) { .alert, .spin .ic { animation: none; } }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="../" aria-label="Gojitrack, kembali ke studi kasus"><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><path fill="#F8461E" fill-rule="evenodd" d="M6 8L8 2L12 6L16 0L20 6L24 2L26 8L30 14L24 18L22 26L20 30H12L10 26L8 18L2 14ZM8 12L14 14V16H10ZM24 12L18 14V16H22ZM13 24H15V26H13ZM17 24H19V26H17Z"/></svg>
+      <span class="brand-text"><span class="t-title">Gojitrack</span><span class="t-mono c2">Makassar, Sulawesi Selatan</span></span>
+    </a>
+    <div class="nav-right">
+      <span class="t-mono c2 updated-desk" data-updated></span>
+      <button class="icon-btn" id="refresh" aria-label="Muat ulang kondisi terkini"></button>
+    </div>
+  </header>
+  <div class="app">
+    <div class="top" id="top"></div>
+    <div class="mapwrap" id="mapwrap">
+      <svg id="svg" aria-label="Peta sekitar lokasi Anda" role="img">
+        <path d="M498 -20l8 20 8 20 6 20 4 20 2 20 2 20 4 20 6 20 8 20 4 20 8 20 6 20 8 20 6 20 2 20 2 20-2 20-4 20-4 20-4 20-4 20-2 20-2 20 2 20 2 20 2 20 0 20 0 20-2 20-6 20-6 20-6 20-6 20-4 20-2 20-2 20 2 20 4 20 6 20 6 20 4 20 4 20 2 20 0 20 900 4 0-884z" fill="#15191B"/>
+        <path d="M388 300l10-6 12 2 6 10-8 10-14 0-8-8zM330 500l8-8 14 2 4 12-10 8-12-2zM440 640l6-6 10 0 4 8-6 8-10-2zM250 180l8-4 8 4-2 10-10 2z" fill="#15191B" stroke="rgba(197,197,197,.5)"/>
+        <path d="M536 40H616M766 40H1022M1022 40H1182M1182 40H1440M542 80H786M786 80H1062M1062 80H1232M562 160H806M806 160H1108M1108 160H1218M1218 160H1440M574 200H808M808 200H1106M1106 200H1276M1276 200H1440M588 240H704M704 240H886M886 240H1190M1190 240H1440M596 280H690M690 280H904M1384 280H1440M596 320H836M1040 320H1218M1218 320H1386M1386 320H1440M588 360H816M816 360H1114M1114 360H1402M1402 360H1440M576 440H778M778 440H1084M1084 440H1334M1334 440H1440M580 480H740M740 480H1010M1010 480H1116M1116 480H1214M1330 480H1440M814 520H1004M1004 520H1118M1118 520H1410M1410 520H1440M580 560H842M842 560H924M1022 560H1250M1250 560H1440M568 600H814M814 600H1106M1106 600H1276M1276 600H1384M1384 600H1440M556 640H788M788 640H874M874 640H1000M1000 640H1216M1216 640H1360M1360 640H1440M550 720H642M642 720H890M1090 720H1196M1196 720H1308M560 760H852M852 760H1170M1170 760H1434M1434 760H1440M570 800H862M862 800H998M998 800H1290M1290 800H1440M576 840H832M832 840H1086M1086 840H1214M1214 840H1440M600 0V206M600 680V844M680 0V234M680 580V792M680 792V844M760 0V232M760 462V602M760 602V722M760 722V844M800 0V212M800 212V308M800 308V552M800 552V814M840 0V232M840 232V456M840 736V844M880 118V238M880 238V366M880 366V644M880 644V844M920 0V160M920 160V252M920 252V494M920 494V604M920 786V844M960 114V248M960 248V440M960 718V844M1040 242V368M1040 368V604M1040 604V772M1040 772V844M1080 0V212M1080 212V362M1080 362V542M1080 542V736M1080 736V844M1120 0V226M1120 226V476M1120 476V644M1120 644V844M1200 152V300M1200 300V522M1200 522V794M1200 794V844M1240 240V504M1240 504V712M1240 712V844M1280 0V254M1280 254V508M1280 508V726M1360 0V198M1360 198V458M1360 458V606M1400 0V142M1400 382V600M1400 714V844" fill="none" stroke="rgba(197,197,197,.2)"/>
+        <path d="M548 120H1440M594 260H1440M580 400H1440M582 540H1440M550 680H1440M640 0V844M720 0V844M860 0V844M1000 0V844M1160 0V844M1320 0V844M514 -20l8 20 8 20 6 20 4 20 2 20 2 20 4 20 6 20 8 20 4 20 8 20 6 20 8 20 6 20 2 20 2 20-2 20-4 20-4 20-4 20-4 20-2 20-2 20 2 20 2 20 2 20 0 20 0 20-2 20-6 20-6 20-6 20-6 20-4 20-2 20-2 20 2 20 4 20 6 20 6 20 4 20 4 20 2 20 0 20M640 844L860 620L1000 540L1160 400L1440 240" fill="none" stroke="rgba(197,197,197,.2)" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M498 -20l8 20 8 20 6 20 4 20 2 20 2 20 4 20 6 20 8 20 4 20 8 20 6 20 8 20 6 20 2 20 2 20-2 20-4 20-4 20-4 20-4 20-2 20-2 20 2 20 2 20 2 20 0 20 0 20-2 20-6 20-6 20-6 20-6 20-4 20-2 20-2 20 2 20 4 20 6 20 6 20 4 20 4 20 2 20 0 20" fill="none" stroke="rgba(197,197,197,.5)" stroke-width="2" stroke-linejoin="round"/>
+        <g font-family="Fira Mono, monospace" font-size="12" fill="#C5C5C5">
+          <text x="660" y="96">TALLO</text><text x="604" y="224">UJUNG PANDANG</text><text x="868" y="312">PANAKKUKANG</text>
+          <text x="740" y="592">RAPPOCINI</text><text x="620" y="752">TAMALATE</text><text x="1180" y="452">MANGGALA</text>
+          <text x="1180" y="112">BIRINGKANAYA</text><text x="280" y="592">SELAT MAKASSAR</text><text x="620" y="616">MARISO</text>
+        </g>
+        <g id="ov"></g>
+      </svg>
+    </div>
+    <section class="sheet" id="sheet" aria-live="polite"></section>
+  </div>
+  <p class="sr" id="announce" role="alert"></p>
+
+<script>
+const ICONS = {"siren":["M128 16L128 8M200 40L208 32M56 40L48 32M48,168V128a80,80,0,0,1,80.61-80c44.11.33,79.39,36.89,79.39,81v39M136,80c22.7,3.81,40,24.22,40,48M40 168h176a8 8 0 0 1 8 8v24a8 8 0 0 1 -8 8h-176a8 8 0 0 1 -8 -8v-24a8 8 0 0 1 8 -8Z"],"bell":["M96,192a32,32,0,0,0,64,0M56,104a72,72,0,0,1,144,0c0,35.82,8.3,64.6,14.9,76A8,8,0,0,1,208,192H48a8,8,0,0,1-6.88-12C47.71,168.6,56,139.81,56,104Z"],"globe-hemisphere-east":["M32 128a96 96 0 1 0 192 0a96 96 0 1 0 -192 0ZM184.42,205.68l-9.36-9.37a8,8,0,0,0-3.63-2.09L150,188.59a8,8,0,0,1-5.88-8.9l2.38-16.2a8,8,0,0,1,4.85-6.22l30.45-12.66a8,8,0,0,1,8.47,1.49L215,168.71M50.49,184.65l9.92-6.52A8,8,0,0,0,64,171.49l.21-36.23a8.06,8.06,0,0,1,1.35-4.41l20.94-31.3a8,8,0,0,1,11.34-2l19.81,13a8.06,8.06,0,0,0,5.77,1.45l31.46-4.26a8,8,0,0,0,5-2.71L182.06,79.2A8,8,0,0,0,184,74V50"],"sidebar-simple":["M88 48L88 208M40 48h176a8 8 0 0 1 8 8v144a8 8 0 0 1 -8 8h-176a8 8 0 0 1 -8 -8v-144a8 8 0 0 1 8 -8Z"],"corners-out":["M168 48L208 48 208 88M88 208L48 208 48 168M208 168L208 208 168 208M48 88L48 48 88 48"],"corners-in":["M208 96L160 96 160 48M48 160L96 160 96 208M160 208L160 160 208 160M96 48L96 96 48 96"],"caret-right":["M96 48L176 128 96 208"],"caret-down":["M208 96L128 176 48 96"],"caret-up":["M48 160L128 80 208 160"],"x":["M200 56L56 200M200 200L56 56"],"radioactive":["M109.77,97,83.82,52a8,8,0,0,0-11.55-2.54A95.94,95.94,0,0,0,32,119.14,8.1,8.1,0,0,0,40,128H92M146.23,97l26-44.94a8,8,0,0,1,11.55-2.54A95.94,95.94,0,0,1,224,119.14a8.1,8.1,0,0,1-8,8.86H164M146,159.18l25.83,44.73a8,8,0,0,1-3.56,11.26,96.24,96.24,0,0,1-80.54,0,8,8,0,0,1-3.56-11.26L110,159.18","M116 128a12 12 0 1 0 24 0a12 12 0 1 0 -24 0Z"],"waveform":["M48 96L48 160M88 32L88 224M128 64L128 192M168 96L168 160M208 80L208 176"],"cloud-lightning":["M88,88a68.06,68.06,0,1,1,68,72H76A44,44,0,1,1,90.2,74.34M120 240L144 200 104 200 128 160"],"buildings":["M136,216V32a8,8,0,0,0-12.44-6.65l-80,53.33A8,8,0,0,0,40,85.35V216M136,88h72a8,8,0,0,1,8,8V216M16 216L240 216M104 112L104 128M72 112L72 128M72 168L72 184M104 168L104 184"],"map-pin":["M96 104a32 32 0 1 0 64 0a32 32 0 1 0 -64 0ZM208,104c0,72-80,128-80,128S48,176,48,104a80,80,0,0,1,160,0Z"],"navigation-arrow":["M152,152,234.35,129a8,8,0,0,0,.27-15.21l-176-65.28A8,8,0,0,0,48.46,58.63l65.28,176a8,8,0,0,0,15.21-.27Z"],"arrow-up":["M128 216L128 40M56 112L128 40 200 112"],"arrow-bend-up-right":["M176 152L224 104 176 56M32,200a96,96,0,0,1,96-96h96"],"arrow-bend-up-left":["M80 152L32 104 80 56M224,200a96,96,0,0,0-96-96H32"],"person-simple-run":["M128 56a24 24 0 1 0 48 0a24 24 0 1 0 -48 0ZM56,105.6s32-25.67,80,7c50.47,34.3,80,20.85,80,20.85M110.64,161.16C128.47,165,176,180,176,232M134.44,111.51C128.37,135.24,98.81,206.68,32,200"],"shield-check":["M216,112V56a8,8,0,0,0-8-8H48a8,8,0,0,0-8,8v56c0,96,88,120,88,120S216,208,216,112ZM88 136L112 160 168 104"],"arrows-clockwise":["M168 96L216 96 216 48M216,96,187.72,67.72A88,88,0,0,0,64,67M88 160L40 160 40 208M40,160l28.28,28.28A88,88,0,0,0,192,189"],"clock":["M32 128a96 96 0 1 0 192 0a96 96 0 1 0 -192 0ZM128 72L128 128 184 128"],"plus":["M40 128L216 128M128 40L128 216"],"minus":["M40 128L216 128"],"warning":["M142.41,40.22l87.46,151.87C236,202.79,228.08,216,215.46,216H40.54C27.92,216,20,202.79,26.13,192.09L113.59,40.22C119.89,29.26,136.11,29.26,142.41,40.22ZM128 144L128 104","M116 180a12 12 0 1 0 24 0a12 12 0 1 0 -24 0Z"],"check-circle":["M88 136L112 160 168 104M32 128a96 96 0 1 0 192 0a96 96 0 1 0 -192 0Z"],"users-three":["M192,120a59.91,59.91,0,0,1,48,24M16,144a59.91,59.91,0,0,1,48-24M88 144a40 40 0 1 0 80 0a40 40 0 1 0 -80 0ZM72,216a65,65,0,0,1,112,0M161,80a32,32,0,1,1,31,40M64,120A32,32,0,1,1,95,80"],"gps-fix":["M128 240L128 208M48 128a80 80 0 1 0 160 0a80 80 0 1 0 -160 0ZM128 16L128 48M16 128L48 128M240 128L208 128M96 128a32 32 0 1 0 64 0a32 32 0 1 0 -64 0Z"],"arrow-right":["M40 128L216 128M144 56L216 128 144 200"],"check":["M40 144L96 200 224 72"],"broadcast":["M96 128a32 32 0 1 0 64 0a32 32 0 1 0 -64 0ZM181.67,80a71.94,71.94,0,0,1,0,96M74.33,176a71.94,71.94,0,0,1,0-96M208,49.62a111.88,111.88,0,0,1,0,156.76M48,206.38A111.88,111.88,0,0,1,48,49.62"]};
+const icon = (n, s = 24) => `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 256 256" aria-hidden="true">${ICONS[n][0] ? `<path d="${ICONS[n][0]}" fill="none" stroke="currentColor" stroke-width="21.33" stroke-linecap="round" stroke-linejoin="round"/>` : ''}${ICONS[n][1] ? `<path d="${ICONS[n][1]}" fill="currentColor"/>` : ''}</svg>`;
+const $ = id => document.getElementById(id);
+$('refresh').innerHTML = icon('arrows-clockwise');
+
+/* waktu WITA, dibulatkan ke siklus 30 menit */
+const wita = d => new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Makassar' }).format(d).replace(':', '.');
+function cycle() {
+  const now = new Date(); const last = new Date(Math.floor(now / 1800000) * 1800000); const next = new Date(+last + 1800000);
+  return { last: wita(last), next: wita(next) };
+}
+let state = 'aman', etaMin = 98, alertAt = null;
+const updatedText = () => { const c = cycle(); return state === 'aman' ? `Diperbarui ${c.last} WITA · berikutnya ${c.next}` : `Peringatan ${alertAt} WITA · rutin tiap 30 menit`; };
+const etaText = () => `${Math.floor(etaMin / 60)} j ${String(etaMin % 60).padStart(2, '0')} m`;
+
+/* overlay peta */
+const mono = 7.2;
+function label(x, y, name, meta, sel) {
+  const w = 16 + name.length * mono + (meta ? 8 + meta.length * mono : 0);
+  return `<g><rect x="${x}" y="${y}" width="${w}" height="24" rx="4" fill="#0A0C0D" stroke="${sel ? '#F8461E' : '#7A8286'}"/>
+    <text x="${x + 8}" y="${y + 16}" font-family="Fira Mono, monospace" font-size="12" font-weight="500" fill="#FFFFFF">${name}${meta ? `<tspan dx="8" font-weight="400" fill="#C5C5C5">${meta}</tspan>` : ''}</text></g>`;
+}
+const chip = (x, y, t, c, s) => `<g><rect x="${x}" y="${y}" width="${16 + t.length * mono}" height="24" rx="4" fill="#0A0C0D" stroke="${s}"/><text x="${x + 8}" y="${y + 16}" font-family="Fira Mono, monospace" font-size="12" font-weight="500" fill="${c}">${t}</text></g>`;
+const user = `<circle cx="600" cy="420" r="11" fill="#0A0C0D" stroke="#FFFFFF" stroke-width="2"/><circle cx="600" cy="420" r="6" fill="#FFFFFF"/>` + chip(616, 426, 'ANDA', '#FFFFFF', '#7A8286');
+const narrow = () => $('mapwrap').clientWidth < 600;
+const evac = (lbl) => `<circle cx="780" cy="360" r="20" fill="#1F8B5C" stroke="#0A0C0D" stroke-width="2"/><svg x="768" y="348" width="24" height="24" viewBox="0 0 256 256" color="#0A0C0D">${icon('shield-check').replace(/<svg[^>]*>|<\/svg>/g, '')}</svg>` + (lbl ? (narrow() ? label(754, 312, 'TE-07', '') : label(710, 312, 'TE-07', 'Panakkukang')) : '');
+const zone = `<circle cx="560" cy="440" r="99" fill="rgba(248,70,30,.12)" stroke="#F8461E" stroke-width="2" stroke-dasharray="8 8"/>` + chip(508, 548, 'ZONA BAHAYA', '#F8461E', '#F8461E');
+const kaiju = `<path d="M452 440H540" stroke="#F8461E" stroke-width="2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="M532 432l8 8-8 8" fill="none" stroke="#F8461E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>` + label(486, 452, 'GODZILLA', '62 km', true);
+const route = `<path d="M600 420V400H720V360H780" fill="none" stroke="#0A0C0D" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M600 420V400H720V360H780" fill="none" stroke="#1F8B5C" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`;
+const VIEWS = {
+  aman: { f: [640, 420], ov: () => evac(true) + user },
+  peringatan: { f: [640, 420], ov: () => zone + kaiju + route + evac(true) + user },
+  arah: { f: [690, 400], ov: () => zone + route + evac(true) + user }
+};
+function fitMap() {
+  const el = $('mapwrap'); const w = el.clientWidth, h = el.clientHeight; const fy = VIEWS[state].f[1]; const fx = w < 600 ? 660 : VIEWS[state].f[0];
+  $('svg').setAttribute('viewBox', `${fx - w / 2} ${fy - h / 2} ${w} ${h}`);
+}
+
+/* tampilan per kondisi */
+function render() {
+  const top = $('top'), sheet = $('sheet');
+  document.querySelectorAll('[data-updated]').forEach(e => e.textContent = updatedText());
+  $('ov').innerHTML = VIEWS[state].ov();
+  if (state === 'aman') {
+    top.innerHTML = '';
+    sheet.innerHTML = `
+      <div class="status"><span class="box cs">${icon('shield-check')}</span>
+        <div><h1 class="t-heading">Wilayah Anda aman</h1><p class="c2">Tidak ada kaiju dalam radius 500 km.</p></div></div>
+      <div class="group"><p class="t-label c2">Kaiju terdekat</p>
+        <div class="kaiju"><span class="ring" aria-hidden="true"></span><div><span class="t-numeral-m">GODZILLA</span><span class="t-label c2">1.240 km · Laut Banda</span></div><span class="tag mon">DIPANTAU</span></div></div>
+      <div class="group desk"><p class="t-label c2">Kenali titik evakuasi Anda</p>
+        <div class="line"><span class="cs">${icon('shield-check')}</span><div><p class="t-body-strong">TE-07 Panakkukang</p><p class="t-mono c2">4,8 km · 60 menit jalan kaki</p></div></div></div>
+      <div class="line mob"><span class="c2">${icon('clock', 20)}</span><span>Diperbarui ${cycle().last} WITA</span><span class="t-mono c2">Berikutnya ${cycle().next}</span></div>
+      <button class="btn secondary" data-act="refresh">${icon('arrows-clockwise')}Muat ulang</button>
+      <button class="demo" data-act="simulate">${icon('siren', 16)}Demo · simulasikan peringatan</button>`;
+  }
+  if (state === 'peringatan') {
+    top.innerHTML = `
+      <div class="alert"><div class="alert-title">${icon('siren')}<h1 class="t-heading-l">EVAKUASI SEKARANG</h1></div>
+        <p class="t-body-l">GODZILLA diperkirakan tiba di pesisir Makassar dalam <span data-eta-long>${Math.floor(etaMin / 60)} jam ${etaMin % 60} menit</span>.</p></div>`;
+    sheet.innerHTML = `
+      <div class="group"><p class="t-label c2">Titik evakuasi terdekat</p>
+        <div class="status"><span class="box safe">${icon('shield-check')}</span><div><p class="t-title">TE-07 Panakkukang</p><p class="t-label c2">Di luar zona bahaya · masih menampung</p></div></div></div>
+      <div class="facts">
+        <div class="fact"><span class="t-label">Jarak</span><span class="t-numeral-m">4,8 km</span></div>
+        <div class="fact"><span class="t-label">Jalan kaki</span><span class="t-numeral-m">60 mnt</span></div>
+        <div class="fact"><span class="t-label">Kaiju tiba</span><span class="t-numeral-m ca" data-eta>${etaText()}</span></div></div>
+      <button class="btn safe" data-act="arah">${icon('navigation-arrow')}Lihat arah evakuasi</button>
+      <p class="t-mono c2" data-updated></p>
+      <button class="demo" data-act="reset">Demo · kembali ke kondisi aman</button>`;
+  }
+  if (state === 'arah') {
+    top.innerHTML = `
+      <div class="next">${icon('arrow-bend-up-right', 32)}<div><p class="t-numeral-l">400 m</p><p class="t-body-l">Belok kanan ke Jl. Sungai Saddang</p></div>
+        <button class="icon-btn" data-act="back" aria-label="Tutup navigasi">${icon('x')}</button></div>
+      <div class="strip">${icon('siren', 16)}<p class="t-label">GODZILLA tiba dalam <span data-eta>${etaText()}</span> · tetap di rute</p></div>`;
+    sheet.innerHTML = `
+      <div class="summary"><div><p class="t-numeral-l">60 mnt</p><p class="t-label c2">4,8 km · tiba di TE-07 Panakkukang</p></div><span class="tag safe">RUTE AMAN</span></div>
+      <div class="steps">
+        <div class="step now">${icon('arrow-up')}<span class="t-body-strong">Jl. Penghibur</span><span class="t-mono">sekarang</span></div>
+        <div class="step">${icon('arrow-bend-up-right')}<span class="t-body-strong">Jl. Sungai Saddang</span><span class="t-mono c2">2,4 km</span></div>
+        <div class="step">${icon('arrow-bend-up-left')}<span class="t-body-strong">Jl. Veteran</span><span class="t-mono c2">0,8 km</span></div>
+        <div class="step">${icon('arrow-bend-up-right')}<span class="t-body-strong">Jl. Pengayoman</span><span class="t-mono c2">1,2 km</span></div>
+        <div class="step"><span class="cs">${icon('shield-check')}</span><span class="t-body-strong">TE-07 Panakkukang</span><span class="t-mono c2">Tujuan</span></div></div>
+      <button class="btn secondary" data-act="back">${icon('x')}Akhiri navigasi</button>`;
+  }
+  document.querySelectorAll('[data-updated]').forEach(e => e.textContent = updatedText());
+  fitMap();
+}
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const a = b.dataset.act;
+  if (a === 'simulate') { state = 'peringatan'; alertAt = wita(new Date()); etaMin = 98; render(); $('announce').textContent = 'Peringatan evakuasi. Segera menuju titik evakuasi TE-07 Panakkukang.'; }
+  if (a === 'arah') { state = 'arah'; render(); }
+  if (a === 'back') { state = 'peringatan'; render(); }
+  if (a === 'reset') { state = 'aman'; render(); }
+  if (a === 'refresh') refresh();
+});
+function refresh() { const r = $('refresh'); r.classList.remove('spin'); void r.offsetWidth; r.classList.add('spin'); render(); }
+$('refresh').onclick = refresh;
+setInterval(() => { if (etaMin > 0) etaMin--; document.querySelectorAll('[data-eta]').forEach(e => e.textContent = etaText()); document.querySelectorAll('[data-eta-long]').forEach(e => e.textContent = `${Math.floor(etaMin / 60)} jam ${etaMin % 60} menit`); }, 60000);
+window.addEventListener('resize', () => { $('ov').innerHTML = VIEWS[state].ov(); fitMap(); });
+render();
+</script>
+</body>
+</html>

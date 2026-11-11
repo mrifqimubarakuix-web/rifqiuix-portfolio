@@ -381,7 +381,7 @@ const minScale = () => Math.max(map.clientHeight / 844, map.clientWidth / 2160);
 const span = () => 1440 * view.s;
 function normalize() { const w = span(); view.tx = ((view.tx % w) + w) % w - w; }
 function clampY() {
-  view.s = Math.min(Math.max(view.s, minScale()), minScale() * 4);
+  view.s = Math.min(Math.max(view.s, minScale()), minScale() * 6);
   view.ty = Math.min(0, Math.max(map.clientHeight - 844 * view.s, view.ty));
 }
 function apply(wrap = true) {
@@ -406,7 +406,7 @@ function animated(fn) {
   clearTimeout(settle); settle = setTimeout(() => { map.classList.remove('animate'); apply(); }, 340);
 }
 function zoomAt(f, cx, cy, anim) {
-  const s0 = view.s, s1 = Math.min(Math.max(s0 * f, minScale()), minScale() * 4);
+  const s0 = view.s, s1 = Math.min(Math.max(s0 * f, minScale()), minScale() * 6);
   const go = () => { view.tx = cx - (cx - view.tx) * (s1 / s0); view.ty = cy - (cy - view.ty) * (s1 / s0); view.s = s1; };
   anim ? animated(go) : (go(), apply());
 }
@@ -490,7 +490,7 @@ function tick() {
 setInterval(tick, 1000);
 
 renderList(); renderRight(); renderPins(); fit(); tick();
-centerOn(KAIJU[0], false);
+view.s = minScale() * 2; centerOn(KAIJU[0], false);
 </script>
 </body>
 </html>

@@ -16,6 +16,7 @@
       --border: #2A2F32; --border-strong: #7A8286;
       --text: #FFFFFF; --text-2: #C5C5C5; --on-accent: #0A0C0D;
       --alert: #F8461E; --safe: #1F8B5C;
+      --ease-out: cubic-bezier(0.23, 1, 0.32, 1); --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
       --sans: "Fustat", system-ui, sans-serif; --mono: "Fira Mono", ui-monospace, monospace;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -54,14 +55,16 @@
     .live i { width: 8px; height: 8px; border-radius: 50%; background: var(--safe); }
     .icon-btn { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 4px; }
     .icon-btn:hover { background: var(--raised); }
+    .icon-btn, .toolbar .ghost, .banner button, .narrow a { transition: transform 160ms var(--ease-out); }
+    .icon-btn:active, .toolbar .ghost:active, .banner button:active, .narrow a:active { transform: scale(0.97); }
 
     /* map */
     .stage { position: fixed; inset: 56px 0 0 0; overflow: hidden; }
     .map { position: absolute; inset: 0; cursor: grab; touch-action: none; background: var(--canvas); }
     .map.dragging { cursor: grabbing; }
-    .layer { position: absolute; left: 0; top: 0; width: 1440px; height: 844px; transform-origin: 0 0; }
-    .layer svg { display: block; width: 1440px; height: 844px; }
-    .animate .layer, .animate .pin { transition: transform 320ms cubic-bezier(.2,.7,.2,1); }
+    .layer { position: absolute; left: 0; top: 0; width: 7200px; height: 844px; transform-origin: 0 0; will-change: transform; }
+    .layer svg { display: block; width: 7200px; height: 844px; }
+    .animate .layer, .animate .pin { transition: transform 320ms var(--ease-in-out); }
     .pins { position: absolute; inset: 0; pointer-events: none; }
     .pin { position: absolute; left: 0; top: 0; pointer-events: auto; display: flex; align-items: center; gap: 8px; }
     .pin .dot { position: relative; width: 24px; height: 24px; margin: -12px 0 0 -12px; display: grid; place-items: center; }
@@ -80,7 +83,7 @@
     @keyframes pulse { from { transform: scale(.25); opacity: 1; } to { transform: scale(1); opacity: 0; } }
 
     /* panels */
-    .panel { position: absolute; top: 12px; width: 336px; max-height: calc(100% - 24px); overflow: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px; z-index: 5; transition: opacity 200ms, transform 200ms; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+    .panel { position: absolute; top: 12px; width: 336px; max-height: calc(100% - 24px); overflow: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px; z-index: 5; transition: opacity 200ms var(--ease-out), transform 200ms var(--ease-out); scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
     .panel.left { left: 12px; }
     .panel.right { right: 12px; display: flex; flex-direction: column; gap: 12px; }
     .hidden-panels .panel, .hidden-panels .banner { opacity: 0; pointer-events: none; }
@@ -113,10 +116,13 @@
     .signal-btn { width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 0; text-align: left; }
     .signal-btn .box { width: 40px; height: 40px; border-radius: 4px; background: var(--raised); display: grid; place-items: center; flex: none; }
     .signal-btn .main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-    .signal-btn .chev { color: var(--text-2); transition: transform 200ms; }
+    .signal-btn .chev { color: var(--text-2); transition: transform 200ms var(--ease-out); }
     .signal-btn[aria-expanded="true"] .chev { transform: rotate(180deg); }
-    .signal-detail[hidden] { display: none; }
-    .signal-detail { display: flex; flex-direction: column; gap: 12px; padding-bottom: 16px; }
+    .collapse { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 200ms var(--ease-out); }
+    .collapse.open { grid-template-rows: 1fr; }
+    .signal-detail { overflow: hidden; min-height: 0; visibility: hidden; transition: visibility 0s linear 200ms; }
+    .collapse.open .signal-detail { visibility: visible; transition: visibility 0s; }
+    .sd { display: flex; flex-direction: column; gap: 12px; padding-bottom: 16px; }
     .chart { display: flex; align-items: flex-end; gap: 4px; height: 64px; }
     .chart.wave { align-items: center; }
     .chart i { flex: 1; background: var(--border-strong); border-radius: 2px; }
@@ -131,12 +137,12 @@
     @keyframes drop { from { transform: translateY(-8px); opacity: 0; } to { transform: none; opacity: 1; } }
 
     /* toolbar */
-    .toolbar { position: absolute; bottom: 12px; right: 372px; z-index: 7; display: flex; align-items: center; gap: 4px; padding: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; transition: right 200ms; }
-    .hidden-panels .toolbar { right: 12px; }
+    .toolbar { position: absolute; bottom: 12px; right: 372px; z-index: 7; display: flex; align-items: center; gap: 4px; padding: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; transition: transform 200ms var(--ease-out); }
+    .hidden-panels .toolbar { transform: translateX(360px); }
     .toolbar .ghost { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 8px 16px; border-radius: 4px; font-weight: 600; }
     .toolbar .ghost:hover { background: var(--raised); }
     .toolbar .zoom { display: flex; gap: 4px; padding-left: 4px; border-left: 1px solid var(--border); }
-    .demo-chip { position: absolute; bottom: 12px; left: 12px; z-index: 7; display: flex; align-items: center; gap: 12px; padding: 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; transition: left 200ms; }
+    .demo-chip { position: absolute; bottom: 12px; left: 12px; z-index: 7; display: flex; align-items: center; gap: 12px; padding: 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
     .demo-chip a { color: var(--text); font-weight: 600; text-underline-offset: 4px; }
     .narrow { display: none; }
     @media (max-width: 1099px) {
@@ -150,7 +156,9 @@
       .pulse { animation: none; transform: scale(.7); opacity: .6; }
       .pulse.p2 { display: none; }
       .banner { animation: none; }
-      .animate .layer, .animate .pin, .panel, .toolbar, .signal-btn .chev { transition: none; }
+      .animate .layer, .animate .pin, .signal-btn .chev, .collapse, .icon-btn, .toolbar .ghost { transition: none; }
+      .panel, .toolbar { transition: opacity 200ms var(--ease-out); }
+      .hidden-panels .panel, .hidden-panels .toolbar { transform: none; }
     }
   </style>
 </head>
@@ -181,11 +189,14 @@ orders</span></div>
   <main class="stage" id="stage">
     <div class="map" id="map" aria-label="World map with kaiju positions">
       <div class="layer" id="layer">
-        <svg viewBox="0 0 720 422" aria-hidden="true">
+        <svg viewBox="0 0 3600 422" aria-hidden="true">
+          <defs><g id="world">
           <path d="M60 0V422M120 0V422M180 0V422M240 0V422M300 0V422M360 0V422M420 0V422M480 0V422M540 0V422M600 0V422M660 0V422M0 98H720M0 173H720M0 235H720M0 297H720M0 372H720" stroke="rgba(255,255,255,.06)" vector-effect="non-scaling-stroke" fill="none"/>
           <path d="M138 244l0 4 1 1-1 3 3 4 1 9-3 4-4 2-5 4 1 5-1 5-5 3 1 2-1 3-5 6-4 4-4 3-7-1-6 3-3-3 0-5-3-6-3-3-1-11-2-3-4-7 2-9 2-2-1-7-1-5-1 0 0-2-2-2-4-6 1-4 0-3 1-1-3-4-5 1-3-4-4 0-1 1-2 0-6 3-2-1-6 0-3 1-3-1-5-4-3-2 0-2-8-8 1-1-2-3 2-3 0-8-1-2 5-11 4-4 2 0 4-4-1-2 3-5 3-2 2-4 8 2 7-4 10-1 4 1 2-1 2 2 1 3-2 2 3 2 7 2 1 2 7 3 4-6 4 0 4 3 8 1 2-1 8 1 1-1 1-4 2-3 0-3-3-2-4 2-4-2-2 1-4-1-2-3-1-3 3-3 3 0 0-1 4 0 5-2 3 0 7 2 6-1 0-3-3-2-7-4 3-3 0-2-4 1-2 3 3 1-5 2-3-2 2-2-6-2-4 8-1 4 2 2-5 2-1-1-6 0 0 4 2 2-2 2 0 2-3-1-3-7-1-1 0-4-2-1-5-3-2-4-3-1-2 0 0 4 7 6 5 3-3-1 0 3-2 3-1-5-5-2-5-5-1-2-2-1-3 2-2 1-4-1-3 3-2 3-2 0-3 4 1 1-4 5-5 0-2 2-4-3-3 1-1-5 1-4 0-3-1-3 3-2 12 1 2-6-4-4-3-1 0-2 6 0 1-2 5-2 2-2 2-1 2-5 5-1 4-1-1-3-1-4 5-3 1 3-2 4 2 3 3-1 3 2 7-3 4 1 4-2-1-3 1-4 4 2 2-3-2-4 5-1 4 0 2-1-2-2-10 2-3-2-1-6 3-4 6-4-3-3-4 1-1 4-7 5-2 5 4 4-4 4-2 7-3 0-3 2-4-10-1-2-4 4-6-1-1-10 11-8 9-11 8-7 8-1 3-3 7-1 7 3-3 1 2 2 2-1 4 2 5 1 8 3 1 4-5 3-9-3 2 3 0 5 4 2 0-4 5 2 1-3 4-4 4 2 1-3-2-6 6 1-2 3 2 3 3-3 11-5 0 3 8-1 3-2 2 2 2-2-1-3 6 1 10 5 1-2-3-4-2-4 7-8 5 1-1 5 2 4-1 5 2 2-4 7 2 0 5-5 0-4-3-2 2-4-3-3 5-3 1 1 7-1 4 2-2-7 13-1-2-2 2-3 12-4 7 1 9-2 2-4 5-2 0 3 7 1 6 0 6 4 0 2-9 5 8 3 4-2 7 1 0 2 8 0 1-3 7 1 3 2 0 4 6 4 2-3 3 1 3-1 9 1-2-4 3-1 18 2 7 5 12 0 1 4 3 1 6-1 8 1 3 3 3-1-1-4 10 1 6 1 3 2 11 6 5 1 4 3-5 2 0 3-3 1-4-4-8-2 0 3-5 2 4 5-1 2-3-1-8 3-6 5-3-2-5 2-6 0-3 5 2 2 0 4-2 0 0 4-3 1-1 3-3 1-1 3-2 2-3-12 3-7 3 0 10-10 2-4-9 6-1-4-6 2-5 5 2 1-7 1 0-2-6 1-6 0-7 1-14 12 3 0 3 3 4-2 3 4-2 4-1 8-4 5-6 7-3 2-2-1-3 2-3 3-4 3 2 3 2 4-1 4-5 1-1-7-3-1 2-3-2-1-7 2 2-4-1-1-8 5 4 4 3-2 3 3-3 0-4 4 2 1 4 6-1 3 1 2-7 11-5 4-4 0-6 3-6-1-3 2-2 3 4 5 3 3 0 8-8 6-1-4-2 0-2-3-5-3-2 7 3 5 3 3 3 2 0 4 1 3-1 1-4-4-3-5 0-2-3-4 0-3 1-3-3-9-1-2-3 2-3 0 1-5-4-5-2-4-2 2-3-1-4 1-1 3-3 2-6 5-3 2 0 6-1 5-5 5-2-2-3-8-1-3-2-3-2-11-4 1-2-4-3-2-3-4-10 1-8-2-2-3-4 2-6-3-3-5-4 0 1 3 3 4 2 4 1 1 0 1 5 0 4-4 1 0 0 2 2 2 2 1 3 3-4 6-5 4-5 1-2 3-7 3-10 3-1-8-4-6-4-4 0-3-8-12 0-3-2 4-3-2 6 10 0 2 3 2 1 7 2 2 2 4 7 6 0 3 2 2 10-2 4-1 0 3-3 7-6 8-7 5-3 4-2 2zM158 154l0 2 7 2 3-1 0-4-3-3 1-2 3 0-2-3-2 1 0-2-2-1-2-4 2-1 3 0 0-4-4-1-4 2-5 4 4 7 2 3zM498 66l9 3 4-2 3 0 10-3 4 3 3-2 0 2 4-1 17 5-3 2 4 0 7-1 8-3 3 3 6 1 6 0 0-2 8 1 1-3-5-4 0-4 3-3 4 2 3 5-2 1 4 1 0 4 3-3 2 2 1 5 4-5 0-4 6 0 2 2-1 4 1 3-4 3-5-1-3 6-5 2-2 4-2 0-4 6-1 6 3 0 1 5 7 1 8 4 5 1 0 2 2 6 3 3 3-4-3-6 4-1 3-4-2-4-2-3 2-3-1-7 8-1 5 4 4 1 0 6 4 2 3-1 3-5 6 10-1 2 5 3 4 1 3 4 1 3-7 3-2 2-13 0-4 3-5 6 9-6 5 1-2 2 1 4 6 1 2-3 1 3-7 3-4 3-1-2 3-2-5 0 0 1-6 3-2 2 2 3-6 1-5 7-2-2 2 8-6 4-6 5 0 2 3 8-1 4-1 0-4-6-1-5-3 1-3-2-6 1 0 2-4-1-6 0-6 5 1 3-2 7 4 8 3 1 7-2 1-4 7-1-2 7-1 0 0 4-1 1 9 0 3 2-1 8 2 3 2 1 4-1 4 2 4-2 0-2 4-2 3-2 1 1-1 1 1 5 0-4 5-1 2 2 4 0 2 1 1-1 5-1-1 2 5 3 6 5 6 0 5 4 3 6-1 2 4 0 7 3 1 2 2 0 7 1 6 4 4 1 1 4-1 3-4 4-4 6 0 4-2 8-2 5-2 2-5 1-4 1-4 4-1 6-3 5-9 9-6-1 2 2 0 3-1 3-3 2-7 0 1 4-6 1 0 2 3 2-3 2-1 4-2 0-2 3 4 2-5 7-2 2 1 4-5 2 0 3-3-1-5-4-1-9 3-5-3 0 2-3 0-4 3 1 1-5-4 2 3-14 3-11 0-8 1-2 2-14-1-6-2-2-9-5-8-16-3-2 0-3 2-2 1-2-2-1 2-6 2-1 1-2 3-3-2-6-2-4-3 2 1 1-6-1-6-4 1-2-5-5-8-2-5-4-4 1-14-5-4-4 0-2-1-3-7-8-5-6-2-4-4-2 1 4 6 7 2 4 2 3-5-2-1-3-4-3 1-3-3-2-3-6-3-4-4-1-6-10-2-3 0-6 1-7-1-7 4 3-1-5-5-3-4-1-1-4-2-2-3-5-7-10-5 0-7-4-8-1-6-3-2 3-7 2 0-4-5 4 1 1-6 4-4 4-9 4-4 0 6-3 3-1 6-4 1-4-4 2-3-2-3 1 0-3-4-1-4-5 3-5 3 0 4-2 0-3-8 1-6-4 7-3 1 2 5 0-8-7-1-3 3 0 5-5 11-4 8 3 6 0zM620 55l-1-4 5 1 3 3zM593 46l-1 2-6-1 4-3zM586 31l3 1-4 3-2-5zM604 49l-9-2-3-6-6-2 1-2 10 2 5 5 5 0 11-1 2 4-4 2zM557 33l3 1-4 2-3-1zM669 122l-3 4 7 2 2 4-3 2 0-2-11 0 4-8zM612 82l8 4-2 1-4-2-5 4-2-4 1-5zM622 57l2-2 14 7 4 1 4 5-4 2 8 3 3 3 3 0-4 6-5-4-3 2 5 4 1 6-8-4 6 6-6-1-6-4-6-3-5 1-1-4 8 0 0-3 3-3-2-3-7-3 2-1-6-3-5 1-14-2-3-7 3-5 5-1 0 5 2-3 5-2 4 4-1 3zM591 50l8 1-8 7-3-4zM534 42l8-6 6-1-1 4-7 3zM515 115l2 0-1 3zM569 28l9 2 3 4-7-2zM533 130l-4-1-6-5 5 1zM537 49l8 1 4 2-7 4-3 4-5 2-6-4 4-6-2-3zM564 43l4-1-1 4-6 1-5 2-4-2 4-1-11-1 4-5 13 4-3-3 4-1zM567 54l2 1 2 7 7 3-3 2 0 3-7-2-15 2-5-2-3-3 10-1-11-1 4-2-7-1 3-5 6-2 1 2 4-1 3 2 2-2 4 5-1-5zM579 55l-2-2 2-2 6 0-1 3 3 2 0 3-4 2-8-5zM567 52l4 1-2 2zM583 39l2 2-1 5-6 0-3-2 0-3zM588 22l7-3 3 3 6 2 4 4-6 5-8-1 0-4-4 0-3-4zM597 16l9-2 3-2 5 2 1-3 6-1 13 0 14 1 8 2 0 1-11 4 4 0-8 4-3 4-12 2 3 4-5 2-3 4 3 1-5 3-5-2-13 0 3-3-1-3 7 2-6-4 6-4-4-4 7 1 3-2-11 0-4-2zM630 74l-4 1 0-3zM587 67l0 3-7-3 4-2zM652 133l4 2-2 1zM474 104l2 1-4 2-1-2zM437 86l6 2-2 1zM342 240l7 3 3 3 3 1-1 1 3 5 5 3-6-1-4-4-3-1-4 4-3-1-2-1-5 0 2-2-1-4-6-2-3-2-1 1-2-4-3-2 4-1 3 1 1 4 2 1 2-2 4-2zM363 247l-4 1-2-2 5 0 3-2zM310 254l0-1 4-1zM291 224l2-3 5 3-2 3-1 2 1 2 2 2-2 0-1 4-2 1-1 5-2 0-3-2-3 1-4-1 0-3-2-2 0-4 1-1 3 0 1-1 3-1 2-3zM319 241l1 1-4 0zM316 231l1 1-1 5-1-4zM306 233l4-1-1 2-9 1 2 3 5-2-4 3 2 2 1 5-2 0-3-5 0 5-2 0 0-4-1-1 2-7 2-2zM297 252l1 0-5 1zM277 248l8 1 1 1 5 2-2 1-12-2-6-2 1-2zM269 237l1 3 2 1 0 6-3 0-4-4-8-12-6-6 0-1 4 0 6 7 2 0 5 4zM643 351l1 4 6 2-4 0-2 2-6-1-7-6 7 3 1-3zM637 199l-6-2 4 0-1-2 4 0 5 2zM248 20l4-1 8 7 0 4-4 1-9-3-5-5zM266 28l5 3-1 2-11 1 4-6zM338 42l5 0 7 2-1 3-11 1-4-3zM356 45l5 1-2 2-7-2zM340 53l4-2 3 2zM150 22l10-1 3 1-8 3-1-3zM167 51l5-3-1-2 11-5 14-3 0 3-13 4-6 4-6 8 0 3 4 3-8 0-4-3zM346 116l0 5 3 7-3 0-1 3 2 3-3 2 0-13-1-6zM420 60l5 1-5 1-2 0-1-1zM658 349l5-2 2 1-4 2zM90 27l4-2 9 5-5 1-4 8-6-2 1-2-7-5-1-3 5-2zM115 25l-3 2-12 0-5-3 11-2zM109 35l-4 1-3-3 4-1zM0 8l6 0 12 4-3 2-15 0zM720 14l-4 1 4 0 0 56-4 1-4 5-5 2-7 2-2 6-4 3 1 2-2 6-3 0-3-3-4 0-6-8-2-5-2-3-1-4 2-4 3-1 1-4-5 2-2-1 0-5 6 1-5-3-4-1 3-3-8-12-6-2-14 0-6-4 9-1-8-2-4-3 15-4 0-2-5-2 2-1 10-4-1-2 11-2 8 1 5-3 12 4-5-2 0-2 7-3 7 0 3-2 7-1 10 1zM0 15l4 0 6 2 4-2 0 5 14-4 6 1 2 2-11 5-4 7 0 4 2 3-6 2 3 2-1 4 2 3-4 0 1 3-5 1 2 4-4-1 5 4 0 3-3 1-4-4-2 4 8 1-10 6-5 0zM198 341l3 1-4 2zM615 188l8 1 4 3 5 2-8 1 2-1-3-3-9-2zM159 260l2 6-7 20-3 1-3-1-1-6 2-4-1-6 1-2 4-1zM48 115l-2 5-3 1-3 0 2-3-1-3 4-3 4 1zM392 278l2 2-3-1-3-3zM414 320l-2 3-3 0 1-2-2-3 1-1 0-6-4-4 4 2 2 4 4 2 2-1-1 4zM399 328l3-2 4-5 2 3-5 6-2 4-2 2-6-1 1-3zM355 321l2 1-1 5-4 1-3-7 4 1zM312 302l-4 1-1 2-7 1-4 2-3 0-3-2 2-4-2-6-2-3-1-8 1-6 14-4 2-3 2-4 5-4 3-1 3 2 2-1 2-4 4-1 0-2 6 3 3 0-3 5 8 5 3 0 1-5 0-5 2-4 3 8 3 1 2 8 5 3 1 4 2 1 1 2 4 4 1 6-1 7-3 4-3 7 0 3-3 0-4 3-3-1-3 1-6-2-2-4-3-2 0-2-2 2 2-6-4 5-3-5-6-3zM224 220l-1 2-2 1-2-4 1-4zM279 198l-2 0 1-3 4-1zM304 185l-3 5-1-3 3-4zM90 155l1 0-1 3-5-2 0-1zM77 148l3 1-1 3-2 0zM85 109l-1 4-2-3zM54 117l-1-4-4-2-1-4 2-5 4 0-2 3 4 0-2 5 2 0 3 4 2 4 2 0-2 6-13 1 3-2-2-3 3 0-1-4zM31 77l2 5-3 2-7 3-9-1 2-2-4-1 4-2-5-1 5-2 3 2 3-2 2 1zM305 215l3-3-2 5zM313 218l-2 6-3-1-1-4-3 2 1-2 3-1 4-2zM305 198l0 2-2 3 0 3 5 1 0 3-2-2-5-1-1-2 1-7zM311 211l-1 4-1-5zM344 152l-2 3 0 5-4 3-4 0-2 2-2-2-8 2 2 1-1 4-4-4 6-5 6 0 2-4 2 1 4-3 2-7 2-1zM349 141l2 2-3 0-2 3-3-2-1 3-2 0 1-4 2-1 1-5zM325 165l3-2 2 2-4 2zM632 409l4 0 1-6 2-2 4 7-1 5-10 0-2-2zM575 412l9 0 4 2-10 0zM535 418l5 0 0 2zM27 423l2-1-2-3 2-3 4-1 6-6 6 2 1-3 5 2 5-1 4 2 14-5 5-1 3 3 5-3 12-1 4 1 2 2 13-2 8-2 2-4 9 5 3-2 13-6 9-2 3-3 8 0 4 4 8 3 3-2 10 2 1 6-3 2 2 1-2 5 6 0 6-8 7-1 3-4 8-4 8 0 2-3 2 2 3 1 18 0 7-5 6 4 8-1 7-2 4 2 11 2 3-2 13 1 12-2 0-3 5 5 16 0 2 3 12 4 4-1 5 3 4 0 7 4 12 1 5 3-3 7-7 3-1 2zM504 423l6-2 8 1 23 0 7-1 4-2 3 4 2-2 5 2zM580 423l-5-3-2-6 6 1 8 3 8-2 8 0 14 3 2-3 9 4 14-4 3-2 0-3-2-6 2-7 0-3 9-8 9-4 3 0-4 3-3-1-4 3 1 4-3 1-4 3 1 4 4 2 3 7 2 7-3 5-2 2z" fill="#15191B" stroke="rgba(197,197,197,.5)" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
           <path d="M141 256l-2 1-6 2-4-1-2-4-1 0-5-2-2-4 0-4 3-2-1-2 0-3 7 0 7 4 3 3M26 192l4-1 2-4 3-3 2-4 5-1 1-1 0 4-7 0 0 5-2 1 0 4-8 0M519 113l1-3-3-2-8-10-4 3-3-3-4-1 0-31M646 138l-2-5-2-1-5 6-7 0-4 4-4 0 0 2-7 3-1-1 2-4-1-4-5-4-7-4-6 1-7-3-28-2-28 2M586 182l-4-1-4-6-3-1-1 1-3-1-4-5-3 1-6 0-8-2-4 0M158 135l-2-3-3-2 2-5 7-4 3 0 6 3 6-1 2 1 4-2-3-1 3-3 0-3 7-1 8-3 4 1 0 3 5 0 0 1 6-1 3 2 4 6 7 0 4 4 4 1-3 2-2 3-4 0-1 4-5 2 2 4-1 2-3-1-10-1-1 2-3-1-2 1-5 4-4-1-1-5-2-1-6 0-2-2-5-3-5 1 0 9-4-2-3 1M202 145l-1 2 5 1-4 2-3-1-4 4 2 2-1 2-3 0 0-2-5-2-3-3-1-2-4-1-3-3-5 3M342 253l0-13M310 253l0 1M279 231l2 2 5-1 3 0 3-6 4 1M646 357l-3 0 0-6M643 350l-7 0-1-4-2-1 5-14-2-6 1-8 1-1 0-4 2-6-1-6 2-7 2-3 0-5 2-1 1-3 1-2 8 1 3 4 6 2-1 5 4 1 3-2 1-2 2 2-3 2-5 5-2 9M639 272l2-1 2 3-1 2 2 6 2-1M121 252l-4 0 0 7 2 3-1 0-4-4-1 1-5-2-4 0-1-7-4-1-1 2-3 0-2-4-8 0M84 247l2-2 3 0 3-3 1-4 2-2 2-8 2-3 6 2 4-2 6 0 1 1 3 0 3 2 0 3-2 3-1 4-1 3 1 3M143 238l-1-1 0-8 2-2 3-2 3 0 6-6 2-3 0-4M128 237l0-2 2-4-2-5 3-2 1 2 7 2 3-2 2 1M137 199l-3 2-1 5-1 4-3 4-1 4-2-5 0-2-2 0 1 2-2 2-3-1-2 2-5 0-3-2-1 5-2-2-1-4-1-7 1-3 2 1 0-9 2-1 0-4 24 0M106 213l-4 3-4 1-2 2-5 1-1-3-2-1 3-1-2-6-2-3 1-3 2-2 2-7-2-6 2-1 16 8M637 195l0 4M103 112l2 2-6 0M322 145l-1 0 1-2 0-5 4 0 4-8-8 1-3-4-4-1-3-8-5-1-5 0-1 4-5 6-3-1-4-1-8 3-4 0-3-3-7 0-3-3-6-2-3 6-5 0-6-2-8 4-1 0M157 146l-1 2-3-2-2-1-6-2-5-1M136 133l3-2 1-4-9-3-3-4-4 0-1-2 2-1-3-4 0-2-6-2-1-4 1-6M116 96l7-7-3-2-1-5 1-2-2-4 2-3-3-2 0-2 5-2M127 136l3 1M117 69l1-3-6 0-3 4-8-2-1 3-4-1-2 2-10 16 1 6 0 3-3 4M93 294l1-1 3 2 3-2 0-7 2 4 5-3 4 0 3-4 5-3 3 0 2 5 0 3-3 2 5 0M118 295l-4 2 2 1 2-1 0-2M603 198l-1 1-5 1 2 3-2 0-1 3M665 297l1 0 6 4 1 4M671 288l0-4-2 0 0-3-5-1 0-4 1-4-1-4-4 0-1-5-10-5 0-3-2 0-4 2-4 0 0-3-3 1-4-5 2-4 6-2 1-6-1-4 0-2 6 0 1 2 5-2-1-5 3 0 4-1 1-1 2 2-1 2 2 3 5-1 4-1 4 0 2-3M664 276l-2-2-6 1-1 5M641 271l2-11-2-3M619 242l0 2 3 1 2-4 5-3 0-3 4 3 1 2 6 0-1 2 1 2M629 235l-4-1-3-2M624 221l1-3M637 211l-3 3 2 7 4 0 1 2 4 0-1 6 2 3M614 219l1-3M609 213l4 0M605 209l5-4 4 0M604 208l-3-2 3-3M600 207l1-1M602 199l0 4M660 218l-3 5 2 2M666 223l-2 4 3 4M672 223l-1 2 1 3-1 2M65 123l6 4 1 0 4 1-1 4-3 2 2 2 1 6M66 145l-2 0-8-3M119 280l-3-1-1-2-3-3-1-3 3 0 5-4 2-1 5 3-2 9-2 2M100 286l0-7 2 0 0-7 8-1 1 0M83 270l14 0 1 1 5 0 3-1 4 1M27 202l4 0 5 4 1 4-10 0M26 209l6-2-5 1M36 206l1-2 12 0 0-2-2-18 3 0 16 11 3 1 0 5-2 3-6 1-5 1-4 2-2 3-1 3-5 1-2-5-2 1-3-1M43 179l7 5M64 223l-1-6-1-4 2-2 3 1 0 3-2 3 0 4M89 209l-1 1-1-2-2 1-5-1-2 1-9-2-2 5M64 211l-2-2-1-4M69 196l2-1 6-4 7-4 6 1M88 210l-5 11-5 1-1 3M91 220l-2 6 3 4 0 2-6-2-7 0M62 223l-1-3-1-7 2 0M54 225l0-3 1-3-1-3 0-3 6 0M49 214l2 2 3 0M45 226l0-2-2-2 0-2 1-2 0-3M43 220l-3-2-2-3-4 2M30 213l3-3M37 221l3-3M97 228l-3 0-2 2M109 219l6 6M86 245l-2 0M82 243l1-2 5-1 1-2-1-3 1-2-3-3M79 233l4 0 0-3M126 254l1 2-1 7-6 2 1 1M106 270l-2-3 0-6 4 0 0-4M129 258l0 4 2 2-1 5-1-1 0-4-3-1M124 290l0-2M118 241l3-1M130 166l2 0-1 1 0 3-1 4-1-4M132 163l0 3M131 168l0 2M83 166l0 2-3 2-1 2-1-3-3-3 2-8M43 178l0-2 7-3 3-2 0-1 4-2-1-6M79 172l1 3-1 7 2 3 3 2M131 167l3 1 4-2 0 2-4 2 2 2-4 3-2 0M172 182l1 0M173 184l-1 0-2 5-6-1-1-2M163 185l-1-1M157 176l-4-1 3-2M138 166l4-3 1-4 2-2 5 0 2 5-1 2 4 4 2 5M153 175l-4 0-5-4-6-3M166 201l-2-4 6-3 1-4-1-1M265 211l1-5 9 0 0 4-3 2 0 1-3 1M264 223l-2 1-2-2M257 215l2-4-1-4-2-2 2-3-3-4 2-3 3-1 3 2-1 4 6-2 3 6-1 2M260 194l2-3 2-2 2 4 3 0-1 3 2 1 5 7 0 2M245 193l0-3 2-4 1 0 2-5 4-2 1-2 2 2 0 3-2 4 2 0 1 4 4 1M264 189l7-2 5 4M317 154l-5 2M309 151l5-5 7-1M293 126l-2 6 5-1 3 3-4 0-3 3-5 2-3-1 0 4-6 2-6 1-2 2-6-3-11 0-2-4-4-2-5 0 0-4-1-2-5-3 0-1M245 190l-1-3-2 0 3-3-5-1-3-2 1 2-2 2 2 5M196 187l2-2 4 0-3-5 2-2 3 0 7-10-4-4 1-1 6 0 2-2 2 3 0 4-1 2 5 3-2 3 11 4 5 1 0-3 2 1 1 1 5 0-1-2 6-3 3-1 0 3 3 0M238 179l2-2 3 1M222 173l1-1 9 5 4 1M183 184l1-3 3-1-2-3-3-3 3 1 8-2 1-3 4 0 2-6 2 0 2-5 6-2 2 3 4 1M196 157l4-1 2-2 2 4 3-2 3 1M182 174l2-2-2-2-1-5 1-4 2 0 5-2 2-3 2 1M202 150l-3 2 8 0 3 5M221 145l-5 3-5 1-4 3M182 161l0-2-7-4-4 0-3 2M150 157l-2-5 2-1 2 2 1 0 2-1 3 2M132 160l2-2 11-1M152 153l-5-5 3 0 3 5M101 68l6 4 1 7M124 120l-3 2-8-1-6 1 0-7 4-1 2-3 3-2M119 138l-3-1 2-2 2 0-2-4-5-1-3 2-5-1-1-1 1-2 3-4-1-2M105 128l-7-1-8-4-2-7M105 114l2 1M105 131l-5 5-2 0-5-1-1-1M94 131l-2 3-4 1-4-2-3 1-2-2 7 0 1-3 7 0 0 2 2 1 6-3 2 1M116 137l0-3-3-4M117 142l-3-2-3 2-6-2-5-4M102 109l8-1 3 3M109 104l6 1M90 123l-6 2 3 4M79 132l-4 0M72 127l0-3 2-8M77 112l3 0M116 146l-4 0 0 1-6 0-1-2 0-5M112 146l0 3M100 151l2-3 4-1M143 147l4 1M99 146l1-2 2 4M98 136l0 3-4-1-3 1 6 5 0 1M87 137l4 0 2-2M81 134l-5 2-2 0M71 127l1-2M67 122l3 0 2 2M42 146l5 0-2 11M45 112l0 3 3 0M88 135l0 2M150 148l3 0 0-2M288 226l3 0 0-2M94 129l4-2M146 209l-1 1-3-3-6-2-3 1M146 202l1-3 8 1 3-3 6 0M128 162l-3 0M110 190l0-20M131 224l-4-4 1-2M145 210l-1 3 2 0 1 4 9 2M146 212l0 1M121 237l-2 1M122 228l6-2M98 139l0 3-1 2M101 146l2-1 2 0M103 145l-2-1-3-2M101 144l-1 0" fill="none" stroke="rgba(197,197,197,.2)" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
           <path d="M342 240l0 13-2-1-5 0 2-2-1-4-6-2-3-2-1 1-2-4-3-2 4-1 3 1 1 4 2 1 2-2 4-2zM296 227l-1 2 1 2 2 2-2 0-1 4-2 1-1 5-2 0-3-2-3 1-4-1 0-3-2-2 0-4 1-1 2 2 5-1 3 0 3-6zM319 241l1 1-4 0zM316 231l1 1-1 5-1-4zM306 233l4-1-1 2-9 1 2 3 5-2-4 3 2 2 1 5-2 0-3-5 0 5-2 0 0-4-1-1 2-7 2-2zM297 252l1 0-5 1zM277 248l8 1 1 1 5 2-2 1-12-2-6-2 1-2zM269 237l1 3 2 1 0 6-3 0-4-4-8-12-6-6 0-1 4 0 6 7 2 0 5 4z" fill="rgba(248,70,30,.12)" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+        </g></defs>
+          <use href="#world" x="0"/><use href="#world" x="720"/><use href="#world" x="1440"/><use href="#world" x="2160"/><use href="#world" x="2880"/>
         </svg>
       </div>
       <div class="pins" id="pins"></div>
@@ -301,12 +312,13 @@ function renderList() {
       <span class="side"><span class="tag ${k.level}">${LV[k.level]}</span><span class="t-mono c2">${k.ago}</span></span>
     </button>`).join('');
 }
+const COPIES = [-2, -1, 0, 1, 2];
 function renderPins() {
-  $('pins').innerHTML = KAIJU.map(k => `
-    <button class="pin" data-id="${k.id}" aria-pressed="${k.id === selected}" aria-label="${k.name}, ${LV[k.level].toLowerCase()}">
+  $('pins').innerHTML = COPIES.flatMap(c => KAIJU.map(k => `
+    <button class="pin" data-id="${k.id}" data-copy="${c}" aria-pressed="${k.id === selected}" aria-label="${k.name}, ${LV[k.level].toLowerCase()}">
       <span class="dot">${k.level === 'critical' ? '<span class="pulse"></span><span class="pulse p2"></span>' : ''}<span class="glyph ${k.level}"></span></span>
       <span class="label"><span class="t-mono-strong">${k.name}</span><span class="t-mono c2">${k.meta}</span></span>
-    </button>`).join('');
+    </button>`)).join('');
   placePins();
 }
 function chart(c) {
@@ -336,69 +348,117 @@ function renderRight() {
           <span class="t-mono-strong ${s.hot ? 'ca' : 'c2'}">${s.delta}</span>
           <span class="chev">${icon('caret-down', 20)}</span>
         </button>
-        <div class="signal-detail" id="sig-${i}" ${openSignal === i ? '' : 'hidden'}>
+        <div class="collapse${openSignal === i ? ' open' : ''}" id="sig-${i}"><div class="signal-detail"><div class="sd">
           ${s.chart ? chart(s.chart) : ''}
           <div class="facts">${s.facts.map(([l, v]) => `<div class="fact"><span class="t-label">${l}</span><span class="t-numeral-m">${v}</span></div>`).join('')}</div>
           <p class="t-mono c2">${s.note}</p>
-        </div>
+        </div></div></div>
       </div>`).join('')}
     </div>
     <div class="public"><span class="${k.public.ok ? 'cs' : 'c2'}">${icon(k.public.ok ? 'check-circle' : 'clock')}</span>
       <div><p class="t-body-strong">${k.public.title}</p><p class="t-mono c2">${k.public.sub}</p></div></div>`;
 }
+const EASE_OUT = 'cubic-bezier(0.23, 1, 0.32, 1)';
+const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 function select(id, pan) {
-  if (selected !== id) openSignal = null;
-  selected = id; renderList(); renderPins(); renderRight();
+  const changed = selected !== id;
+  if (changed) openSignal = null;
+  selected = id; renderList();
+  document.querySelectorAll('.pin').forEach(p => p.setAttribute('aria-pressed', p.dataset.id === id));
+  if (changed) {
+    renderRight();
+    $('right').animate(reduce.matches ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(4px)' }, { opacity: 1, transform: 'none' }], { duration: 160, easing: EASE_OUT });
+  }
   if (pan) centerOn(KAIJU.find(k => k.id === id), true);
 }
 
-/* ---- map pan & zoom ---- */
+/* ---- map pan & zoom, wraps horizontally ---- */
 const map = $('map'), layer = $('layer');
-let view = { s: 1, tx: 0, ty: 0 };
-const minScale = () => Math.max(map.clientWidth / 1440, map.clientHeight / 844);
-function clamp() {
-  const W = map.clientWidth, H = map.clientHeight;
+let view = { s: 1, tx: 0, ty: 0 }, raf = 0, settle = 0;
+const minScale = () => Math.max(map.clientHeight / 844, map.clientWidth / 2160);
+const span = () => 1440 * view.s;
+function normalize() { const w = span(); view.tx = ((view.tx % w) + w) % w - w; }
+function clampY() {
   view.s = Math.min(Math.max(view.s, minScale()), minScale() * 4);
-  view.tx = Math.min(0, Math.max(W - 1440 * view.s, view.tx));
-  view.ty = Math.min(0, Math.max(H - 844 * view.s, view.ty));
+  view.ty = Math.min(0, Math.max(map.clientHeight - 844 * view.s, view.ty));
 }
-function apply() {
-  clamp();
-  layer.style.transform = `translate(${view.tx}px, ${view.ty}px) scale(${view.s})`;
+function apply(wrap = true) {
+  clampY(); if (wrap) normalize();
+  layer.style.transform = `translate(${view.tx - 2 * span()}px, ${view.ty}px) scale(${view.s})`;
   placePins();
 }
 function placePins() {
-  document.querySelectorAll('.pin').forEach(p => { const k = KAIJU.find(x => x.id === p.dataset.id); p.style.transform = `translate(${Math.round(k.x * view.s + view.tx)}px, ${Math.round(k.y * view.s + view.ty)}px)`; });
+  const W = map.clientWidth, w = span(), best = {};
+  document.querySelectorAll('.pin').forEach(p => {
+    const k = KAIJU.find(x => x.id === p.dataset.id);
+    const x = k.x * view.s + view.tx + +p.dataset.copy * w;
+    p.style.transform = `translate(${Math.round(x)}px, ${Math.round(k.y * view.s + view.ty)}px)`;
+    const d = Math.abs(x - W / 2); if (!best[k.id] || d < best[k.id].d) best[k.id] = { p, d };
+  });
+  document.querySelectorAll('.pin').forEach(p => { const on = best[p.dataset.id].p === p; p.tabIndex = on ? 0 : -1; on ? p.removeAttribute('aria-hidden') : p.setAttribute('aria-hidden', 'true'); });
 }
-function animated(fn) { map.classList.add('animate'); fn(); clearTimeout(animated.t); animated.t = setTimeout(() => map.classList.remove('animate'), 340); }
+function animated(fn) {
+  cancelAnimationFrame(raf);
+  if (reduce.matches) { fn(); apply(); return; }
+  map.classList.add('animate'); fn(); apply(false);
+  clearTimeout(settle); settle = setTimeout(() => { map.classList.remove('animate'); apply(); }, 340);
+}
 function zoomAt(f, cx, cy, anim) {
   const s0 = view.s, s1 = Math.min(Math.max(s0 * f, minScale()), minScale() * 4);
-  const go = () => { view.tx = cx - (cx - view.tx) * (s1 / s0); view.ty = cy - (cy - view.ty) * (s1 / s0); view.s = s1; apply(); };
-  anim ? animated(go) : go();
+  const go = () => { view.tx = cx - (cx - view.tx) * (s1 / s0); view.ty = cy - (cy - view.ty) * (s1 / s0); view.s = s1; };
+  anim ? animated(go) : (go(), apply());
 }
 function centerOn(k, anim) {
-  const go = () => { view.tx = map.clientWidth / 2 - k.x * view.s; view.ty = map.clientHeight / 2 - k.y * view.s; apply(); };
-  anim ? animated(go) : go();
+  const go = () => {
+    const w = span(); let tx = map.clientWidth / 2 - k.x * view.s;
+    tx += Math.round((view.tx - tx) / w) * w;
+    view.tx = tx; view.ty = map.clientHeight / 2 - k.y * view.s;
+  };
+  anim ? animated(go) : (go(), apply());
 }
 function fit() { view.s = minScale(); view.tx = (map.clientWidth - 1440 * view.s) / 2; view.ty = (map.clientHeight - 844 * view.s) / 2; apply(); }
 
-let drag = null;
-map.addEventListener('pointerdown', e => { if (e.target.closest('.pin')) return; drag = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty }; map.setPointerCapture(e.pointerId); map.classList.add('dragging'); });
-map.addEventListener('pointermove', e => { if (!drag) return; view.tx = drag.tx + e.clientX - drag.x; view.ty = drag.ty + e.clientY - drag.y; apply(); });
-map.addEventListener('pointerup', () => { drag = null; map.classList.remove('dragging'); });
-map.addEventListener('wheel', e => { e.preventDefault(); const r = map.getBoundingClientRect(); zoomAt(e.deltaY < 0 ? 1.15 : 1 / 1.15, e.clientX - r.left, e.clientY - r.top); }, { passive: false });
+/* drag with a short glide on release */
+let drag = null, samples = [];
+map.addEventListener('pointerdown', e => {
+  if (e.target.closest('.pin')) return;
+  cancelAnimationFrame(raf); map.classList.remove('animate');
+  drag = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty }; samples = [{ t: e.timeStamp, x: e.clientX, y: e.clientY }];
+  map.setPointerCapture(e.pointerId); map.classList.add('dragging');
+});
+map.addEventListener('pointermove', e => {
+  if (!drag) return;
+  view.tx = drag.tx + e.clientX - drag.x; view.ty = drag.ty + e.clientY - drag.y; apply(false);
+  samples.push({ t: e.timeStamp, x: e.clientX, y: e.clientY }); while (samples.length > 2 && e.timeStamp - samples[0].t > 80) samples.shift();
+});
+map.addEventListener('pointerup', e => {
+  if (!drag) return; drag = null; map.classList.remove('dragging'); apply();
+  const a = samples[0], dt = e.timeStamp - a.t;
+  if (reduce.matches || dt <= 0 || dt > 120) return;
+  let vx = (e.clientX - a.x) / dt, vy = (e.clientY - a.y) / dt;
+  if (Math.hypot(vx, vy) < 0.15) return;
+  let last = performance.now();
+  const step = now => {
+    const t = Math.min(32, now - last); last = now;
+    view.tx += vx * t; view.ty += vy * t; const f = Math.pow(0.94, t / 16.7); vx *= f; vy *= f; apply();
+    if (Math.hypot(vx, vy) > 0.02) raf = requestAnimationFrame(step);
+  };
+  raf = requestAnimationFrame(step);
+});
+map.addEventListener('wheel', e => { e.preventDefault(); cancelAnimationFrame(raf); const r = map.getBoundingClientRect(); zoomAt(e.deltaY < 0 ? 1.15 : 1 / 1.15, e.clientX - r.left, e.clientY - r.top); }, { passive: false });
 $('zoomIn').onclick = () => zoomAt(1.4, map.clientWidth / 2, map.clientHeight / 2, true);
 $('zoomOut').onclick = () => zoomAt(1 / 1.4, map.clientWidth / 2, map.clientHeight / 2, true);
 $('recenter').onclick = () => centerOn(KAIJU.find(k => k.id === selected), true);
-window.addEventListener('resize', apply);
+window.addEventListener('resize', () => apply());
 
 /* ---- interactions ---- */
 $('list').addEventListener('click', e => { const b = e.target.closest('.row'); if (b) select(b.dataset.id, true); });
 $('pins').addEventListener('click', e => { const b = e.target.closest('.pin'); if (b) select(b.dataset.id, false); });
 $('right').addEventListener('click', e => {
   const b = e.target.closest('.signal-btn'); if (!b) return;
-  const i = +b.dataset.sig; openSignal = openSignal === i ? null : i; renderRight();
-  $('right').querySelector(`[data-sig="${i}"]`).focus();
+  const i = +b.dataset.sig, open = b.getAttribute('aria-expanded') !== 'true';
+  openSignal = open ? i : null;
+  $('right').querySelectorAll('.signal-btn').forEach(x => { const on = x === b && open; x.setAttribute('aria-expanded', on); $(x.getAttribute('aria-controls')).classList.toggle('open', on); });
 });
 const stage = $('stage');
 function togglePanels() {
@@ -410,7 +470,10 @@ function togglePanels() {
 }
 $('togglePanels').onclick = togglePanels;
 $('hideFromPanel').onclick = togglePanels;
-$('ack').onclick = () => { $('banner').remove(); };
+$('ack').onclick = () => {
+  const bn = $('banner');
+  bn.animate(reduce.matches ? [{ opacity: 1 }, { opacity: 0 }] : [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-8px)' }], { duration: 150, easing: EASE_OUT, fill: 'forwards' }).onfinish = () => bn.remove();
+};
 $('anyway').onclick = e => { e.preventDefault(); $('narrow').classList.add('dismissed'); fit(); };
 
 /* ---- clocks ---- */
@@ -424,7 +487,7 @@ function tick() {
 }
 setInterval(tick, 1000);
 
-renderList(); renderPins(); renderRight(); fit(); tick();
+renderList(); renderRight(); renderPins(); fit(); tick();
 centerOn(KAIJU[0], false);
 </script>
 </body>

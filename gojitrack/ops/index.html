@@ -62,8 +62,8 @@
     .stage { position: fixed; inset: 56px 0 0 0; overflow: hidden; }
     .map { position: absolute; inset: 0; cursor: grab; touch-action: none; background: var(--canvas); }
     .map.dragging { cursor: grabbing; }
-    .layer { position: absolute; left: 0; top: 0; width: 7200px; height: 844px; transform-origin: 0 0; will-change: transform; }
-    .layer svg { display: block; width: 7200px; height: 844px; }
+    .layer { position: absolute; left: 0; top: 0; width: 7200px; height: 844px; transform-origin: 0 0; }
+    .layer svg { display: block; width: 100%; height: 100%; }
     .animate .layer, .animate .pin { transition: transform 320ms var(--ease-in-out); }
     .pins { position: absolute; inset: 0; pointer-events: none; }
     .overlay { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
@@ -171,6 +171,133 @@
       .panel, .toolbar { transition: opacity 200ms var(--ease-out); }
       .hidden-panels .panel, .hidden-panels .toolbar { transform: none; }
     }
+      /* ---------- shared view chrome ---------- */
+    .bell { position: relative; color: var(--text); }
+    .badge { position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; border-radius: 50%; background: var(--alert); box-shadow: 0 0 0 2px var(--surface); display: none; }
+    .bell.on .badge { display: block; }
+    .tab { text-decoration: none; transition: background-color 150ms ease, color 150ms ease; }
+    .tab:hover { color: var(--text); }
+    .view { position: fixed; inset: 56px 0 0 0; padding: 12px; display: grid; gap: 24px; background: var(--canvas); grid-template-rows: minmax(0, 1fr); }
+    .view[hidden] { display: none; }
+    .view.split { grid-template-columns: 336px minmax(0, 1fr); }
+    .view.split.has-detail { grid-template-columns: 336px minmax(0, 1fr) 336px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px; min-height: 0; overflow: auto; display: flex; flex-direction: column; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+    .card[hidden] { display: none; }
+    .card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding-bottom: 12px; }
+    .card-head > div { min-width: 0; }
+    .group { display: flex; flex-direction: column; gap: 4px; padding: 12px 0; border-top: 1px solid var(--border); }
+    .check { display: flex; align-items: center; gap: 12px; min-height: 36px; cursor: pointer; }
+    .check input { appearance: none; width: 20px; height: 20px; margin: 0; border-radius: 4px; border: 2px solid var(--border-strong); display: grid; place-items: center; flex: none; cursor: pointer; transition: background-color 120ms ease, border-color 120ms ease; }
+    .check input:checked { background: var(--alert); border-color: var(--alert); }
+    .check input:checked::after { content: ""; width: 10px; height: 5px; border-left: 2px solid var(--on-accent); border-bottom: 2px solid var(--on-accent); transform: translateY(-1px) rotate(-45deg); }
+    .check input:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+    .check .name { flex: 1; }
+    .link-btn { min-height: 40px; padding: 8px 12px; border-radius: 4px; font-weight: 600; }
+    .link-btn:hover { background: var(--raised); }
+    .sound { margin-top: auto; display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--raised); border-radius: 4px; }
+    .sound > div { flex: 1; }
+    .switch { min-width: 40px; min-height: 28px; padding: 4px 8px; border-radius: 4px; font: 500 12px/16px var(--mono); background: var(--safe); color: var(--on-accent); transition: background-color 150ms ease, color 150ms ease; }
+    .switch[aria-pressed="false"] { background: transparent; box-shadow: inset 0 0 0 1px var(--border-strong); color: var(--text-2); }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 8px 16px; border-radius: 4px; font-weight: 600; transition: transform 160ms var(--ease-out), background-color 150ms ease; }
+    .btn:active { transform: scale(0.97); }
+    .btn.out { box-shadow: inset 0 0 0 1px var(--border-strong); }
+    .btn.out:hover { background: var(--raised); }
+    .btn.alert { background: var(--alert); color: var(--on-accent); }
+    .btn.safe { background: var(--safe); color: var(--on-accent); }
+    .btn.l { min-height: 48px; padding: 12px 20px; font-size: 16px; line-height: 24px; width: 100%; }
+    .btn[disabled] { opacity: .5; cursor: not-allowed; }
+    .stack { display: flex; flex-direction: column; gap: 12px; margin-top: auto; padding-top: 12px; }
+
+    /* ---------- alerts ---------- */
+    .day { padding: 20px 12px 8px; border-bottom: 1px solid var(--border); color: var(--text-2); font: 400 12px/16px var(--mono); text-transform: uppercase; }
+    .arow { width: 100%; display: grid; grid-template-columns: 20px 48px minmax(0, 1fr) 104px 64px 20px; align-items: center; gap: 16px; padding: 12px; border-bottom: 1px solid var(--border); text-align: left; transition: background-color 150ms ease; }
+    .arow:hover { background: var(--raised); }
+    .arow[aria-current="true"] { background: var(--raised); box-shadow: inset 2px 0 0 var(--alert); }
+    .arow .txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .type { padding: 4px 8px; border-radius: 4px; box-shadow: inset 0 0 0 1px var(--border-strong); font: 500 12px/16px var(--mono); text-align: center; }
+    .status { font: 500 12px/16px var(--mono); text-align: right; color: var(--text-2); }
+    .status.open { color: var(--alert); }
+    .has-detail .arow { grid-template-columns: 20px 48px minmax(0, 1fr) 104px 48px 20px; }
+    .empty { padding: 48px 12px; text-align: center; color: var(--text-2); }
+    .kv { display: flex; justify-content: space-between; gap: 12px; }
+    .tl { display: grid; grid-template-columns: 48px 1fr; gap: 12px; padding: 8px 0; }
+    .tl.new { animation: tlIn 400ms var(--ease-out); }
+    @keyframes tlIn { from { background: rgba(248,70,30,.24); } to { background: transparent; } }
+    .status-line { display: flex; align-items: center; gap: 12px; }
+
+    /* ---------- history ---------- */
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 12px; background: var(--raised); border-radius: 4px; margin-bottom: 12px; }
+    .hrow { width: 100%; display: grid; grid-template-columns: 96px 160px minmax(0, 1fr) 112px 72px 20px; align-items: center; gap: 16px; padding: 12px; border-bottom: 1px solid var(--border); text-align: left; transition: background-color 150ms ease; }
+    .hrow:hover { background: var(--raised); }
+    .hrow[aria-current="true"] { background: var(--raised); box-shadow: inset 2px 0 0 var(--alert); }
+    .hhead { display: grid; grid-template-columns: 96px 160px minmax(0, 1fr) 112px 72px 20px; gap: 16px; padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text-2); font: 500 12px/16px var(--sans); }
+    .num { text-align: right; }
+    .hchart { display: flex; align-items: flex-end; gap: 4px; height: 64px; }
+    .hchart i { flex: 1; border-radius: 2px; background: var(--border-strong); }
+    .hchart i.hot { background: var(--alert); }
+
+    /* ---------- modal & toast ---------- */
+    .scrim { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 12px; background: rgba(10,12,13,.8); }
+    .scrim[hidden] { display: none; }
+    .modal { width: 696px; max-width: 100%; max-height: 100%; overflow: auto; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 8px; }
+    .modal.critical { width: 456px; border: 2px solid var(--alert); padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+    .m-head { display: flex; align-items: center; gap: 12px; padding: 16px; border-bottom: 1px solid var(--border); }
+    .m-head > div { flex: 1; }
+    .m-body { padding: 16px; display: flex; flex-direction: column; gap: 24px; }
+    .m-foot { display: flex; align-items: center; gap: 12px; padding: 16px; border-top: 1px solid var(--border); background: var(--canvas); }
+    .m-foot p { flex: 1; }
+    .opt { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 4px; box-shadow: inset 0 0 0 1px var(--border); cursor: pointer; transition: background-color 150ms ease, box-shadow 150ms ease; }
+    .opt:has(input:checked) { background: var(--raised); box-shadow: inset 0 0 0 1px var(--text); }
+    .opt:has(input:disabled) { opacity: .5; cursor: not-allowed; }
+    .opt > div { flex: 1; }
+    .opt input[type="radio"] { appearance: none; width: 20px; height: 20px; margin: 0; border-radius: 50%; border: 2px solid var(--border-strong); display: grid; place-items: center; flex: none; }
+    .opt input[type="radio"]:checked { border-color: var(--text); }
+    .opt input[type="radio"]:checked::after { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--text); }
+    .opt input:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+    .preview { background: var(--alert); color: var(--on-accent); border-radius: 4px; padding: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .preview-title { display: flex; align-items: center; gap: 8px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+    .crit-head { display: flex; align-items: center; gap: 12px; }
+    .crit-icon { width: 40px; height: 40px; border-radius: 4px; background: var(--alert); color: var(--on-accent); display: grid; place-items: center; flex: none; }
+    .crit-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 12px; background: var(--raised); border-radius: 4px; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .toast { position: fixed; left: 50%; bottom: 24px; z-index: 45; display: flex; align-items: center; gap: 12px; padding: 12px 8px 12px 16px; border-radius: 8px; background: var(--safe); color: var(--on-accent); transform: translateX(-50%); }
+    .toast[hidden] { display: none; }
+    .toast .icon-btn { color: var(--on-accent); }
+
+    /* ---------- replay mode on the map stage ---------- */
+    .replay-only { display: none; }
+    .mode-replay .ov-only { display: none !important; }
+    .mode-replay .replay-only { display: flex; }
+    .mode-replay svg.replay-only { display: block; }
+    .rpin { position: absolute; left: 0; top: 0; align-items: center; gap: 8px; pointer-events: none; }
+    .rpin .dot { position: relative; width: 24px; height: 24px; margin: -12px 0 0 -12px; display: grid; place-items: center; }
+    .rpin .label { display: flex; gap: 8px; padding: 4px 8px; border-radius: 4px; background: var(--canvas); border: 1px solid var(--alert); margin-top: -12px; white-space: nowrap; }
+    .rpin .glyph.critical { width: 20px; height: 20px; box-shadow: 0 0 0 2px var(--canvas), 0 0 0 8px rgba(248,70,30,.32); position: relative; z-index: 1; }
+    .rhead { position: absolute; left: 12px; top: 12px; width: 336px; flex-direction: column; gap: 12px; z-index: 5; }
+    .rlog { position: absolute; right: 12px; top: 12px; width: 336px; flex-direction: column; z-index: 5; max-height: calc(100% - 112px); }
+    .ev { width: 100%; display: flex; gap: 12px; padding: 12px; border-top: 1px solid var(--border); text-align: left; transition: background-color 150ms ease; }
+    .ev:hover { background: var(--raised); }
+    .ev .glyph { margin-top: 2px; flex: none; }
+    .ev.past .glyph { background: var(--alert); border-color: var(--alert); }
+    .ev.now { background: var(--raised); box-shadow: inset 2px 0 0 var(--alert); }
+    .ev.future { color: var(--text-2); }
+    .rbar { position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 6; align-items: center; gap: 16px; padding: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+    .rbar .clock { min-width: 168px; }
+    .scrub { position: relative; flex: 1; height: 40px; display: flex; align-items: center; }
+    .scrub input { position: relative; z-index: 2; width: 100%; margin: 0; appearance: none; background: transparent; height: 40px; cursor: pointer; }
+    .scrub input::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: transparent; }
+    .scrub input::-moz-range-track { height: 4px; background: transparent; }
+    .scrub input::-webkit-slider-thumb { appearance: none; width: 16px; height: 16px; margin-top: -6px; border-radius: 50%; background: var(--text); border: 2px solid var(--canvas); }
+    .scrub input::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: var(--text); border: 2px solid var(--canvas); }
+    .scrub input:focus-visible { outline: 2px solid var(--text); outline-offset: 4px; }
+    .scrub .rail, .scrub .fill { position: absolute; left: 0; top: 18px; height: 4px; border-radius: 4px; }
+    .scrub .rail { right: 0; background: var(--border-strong); }
+    .scrub .fill { background: var(--alert); width: 0; }
+    .scrub .tick { position: absolute; top: 14px; width: 2px; height: 12px; margin-left: -1px; background: var(--text-2); }
+    .speed { min-width: 88px; }
+    @media (prefers-reduced-motion: reduce) { .tl.new { animation: none; } .btn { transition: none; } }
+
   </style>
 </head>
 <body>
@@ -178,21 +305,21 @@
     <div class="nav-left">
       <a class="brand" href="../" aria-label="Gojitrack, back to case study"><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><path fill="#F8461E" fill-rule="evenodd" d="M6 8L8 2L12 6L16 0L20 6L24 2L26 8L30 14L24 18L22 26L20 30H12L10 26L8 18L2 14ZM8 12L14 14V16H10ZM24 12L18 14V16H22ZM13 24H15V26H13ZM17 24H19V26H17Z"/></svg><span>Gojitrack</span></a>
       <nav class="tabs" aria-label="Sections">
-        <a class="tab" aria-current="page">Overview</a>
-        <a class="tab" aria-disabled="true" title="Alerts is shown in the case study, not in this demo">Alerts</a>
-        <a class="tab" aria-disabled="true" title="History is shown in the case study, not in this demo">History</a>
+        <a class="tab" href="#overview" data-view="overview" aria-current="page">Overview</a>
+        <a class="tab" href="#alerts" data-view="alerts">Alerts</a>
+        <a class="tab" href="#history" data-view="history">History</a>
       </nav>
     </div>
     <div class="nav-right">
       <div class="stat"><span class="t-numeral-l">05</span><span class="t-label">Active
 kaiju</span></div>
-      <div class="stat"><span class="t-numeral-l ca">01</span><span class="t-label">Critical
+      <div class="stat"><span class="t-numeral-l ca" id="statCritical">01</span><span class="t-label">Critical
 threat</span></div>
-      <div class="stat"><span class="t-numeral-l">02</span><span class="t-label">Evacuation
+      <div class="stat"><span class="t-numeral-l" id="statEvac">02</span><span class="t-label">Evacuation
 orders</span></div>
       <div class="status">
         <div class="live"><i></i><span class="t-mono-strong">LIVE</span><span class="t-mono c2" id="clock">00:00:00 UTC</span></div>
-        <button class="icon-btn" aria-label="Notifications" data-icon="bell"></button>
+        <a class="icon-btn bell" href="#alerts" aria-label="Alerts" id="bell" data-icon="bell"><span class="badge" id="badge"></span></a>
       </div>
     </div>
   </header>
@@ -211,17 +338,19 @@ orders</span></div>
         </svg>
       </div>
       <div class="pins" id="pinsWrap">
-        <svg class="overlay" aria-hidden="true">
+        <svg class="overlay ov-only" aria-hidden="true">
           <path id="trail" fill="none" stroke="rgba(248,70,30,.48)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
           <path id="trailFlow" class="flow" fill="none" stroke="#F8461E" stroke-width="2" stroke-linecap="round"/>
           <g id="fixes" fill="#F8461E"></g>
           <g id="city"><circle r="4" fill="#FFFFFF"/><text x="-10" y="24" text-anchor="end" font-family="Fira Mono, monospace" font-size="12" font-weight="500" fill="#FFFFFF" stroke="#0A0C0D" stroke-width="4" paint-order="stroke" stroke-linejoin="round">MAKASSAR</text></g>
         </svg>
-        <div id="pins"></div>
+        <div id="pins" class="ov-only"></div>
+        <svg class="overlay replay-only" id="rOverlay" aria-hidden="true"></svg>
+        <div class="rpin replay-only" id="rPin"><span class="dot"><span class="pulse"></span><span class="pulse p2"></span><span class="pulse p3"></span><span class="glyph critical"></span></span><span class="label"><span class="t-mono-strong" id="rPinName"></span><span class="t-mono c2" id="rPinTime"></span></span></div>
       </div>
     </div>
 
-    <aside class="panel left" id="left" aria-label="Active kaiju">
+    <aside class="panel left ov-only" id="left" aria-label="Active kaiju">
       <div class="panel-head">
         <div><h1 class="t-title">Active kaiju</h1><p class="t-mono c2">05 tracked · sorted by threat</p></div>
         <button class="icon-btn" id="hideFromPanel" aria-label="Hide panels" data-icon="sidebar-simple"></button>
@@ -229,7 +358,7 @@ orders</span></div>
       <div class="list" id="list"></div>
     </aside>
 
-    <div class="banner" id="banner" role="alert">
+    <div class="banner ov-only" id="banner" role="alert">
       <span data-icon="siren"></span>
       <div class="text">
         <p class="t-body-strong">Evacuation order active · Makassar, Indonesia</p>
@@ -238,11 +367,11 @@ orders</span></div>
       <button id="ack">Acknowledge</button>
     </div>
 
-    <aside class="panel right" id="right" aria-live="polite" aria-label="Selected kaiju"></aside>
+    <aside class="panel right ov-only" id="right" aria-live="polite" aria-label="Selected kaiju"></aside>
 
-    <div class="demo-chip"><span class="t-mono c2">Fictional data</span><a href="../">Read the case study</a></div>
+    <div class="demo-chip ov-only"><span class="t-mono c2">Fictional data</span><a href="../">Read the case study</a></div>
 
-    <div class="toolbar">
+    <div class="toolbar ov-only">
       <button class="ghost" id="togglePanels" aria-pressed="false"><span data-icon="corners-out" data-size="20"></span><span id="toggleLabel">Hide panels</span></button>
       <div class="zoom">
         <button class="icon-btn" id="zoomOut" aria-label="Zoom out" data-icon="minus"></button>
@@ -250,7 +379,63 @@ orders</span></div>
         <button class="icon-btn" id="recenter" aria-label="Center on selected kaiju" data-icon="gps-fix"></button>
       </div>
     </div>
+
+    <aside class="panel rhead replay-only" id="rHead" aria-label="Replay"></aside>
+    <aside class="panel rlog replay-only" aria-label="Event log">
+      <div class="panel-head"><div><h2 class="t-title">Event log</h2><p class="t-mono c2">Synced to playhead</p></div></div>
+      <div id="rLog" style="margin-top:8px"></div>
+    </aside>
+    <div class="rbar replay-only" aria-label="Playback">
+      <button class="icon-btn" id="rPlay" aria-label="Pause" style="width:44px;height:44px;box-shadow:inset 0 0 0 1px var(--border-strong)"></button>
+      <div class="clock"><p class="t-numeral-m" id="rClock"></p><p class="t-mono c2" id="rHour"></p></div>
+      <div class="scrub"><span class="rail"></span><span class="fill" id="rFill"></span><span id="rTicks"></span><input type="range" id="rScrub" min="0" max="1000" value="0" aria-label="Replay position"></div>
+      <span class="t-mono c2" id="rEnd"></span>
+      <button class="btn out speed" id="rSpeed" aria-label="Playback speed">Speed 4×</button>
+    </div>
   </main>
+
+  <!-- ===== Alerts ===== -->
+  <section class="view split" id="view-alerts" aria-label="Alerts" hidden>
+    <aside class="card" aria-label="Filters">
+      <div class="card-head">
+        <div><h2 class="t-title">Filters</h2><p class="t-mono c2" id="aCount">08 alerts · last 24 h</p></div>
+        <button class="link-btn" id="aReset">Reset</button>
+      </div>
+      <div id="aFilters"></div>
+      <div class="sound">
+        <span data-icon="speaker-high"></span>
+        <div><p class="t-body-strong">Sound on critical alerts</p><p class="t-label c2">Repeats until acknowledged</p></div>
+        <button class="switch" id="sound" aria-pressed="true" aria-label="Sound on critical alerts">ON</button>
+      </div>
+    </aside>
+    <section class="card" aria-label="Alert feed">
+      <div class="card-head">
+        <div><h2 class="t-title">Alert feed</h2><p class="t-mono c2">Newest first · UTC</p></div>
+        <button class="btn out" id="ackAll"><span data-icon="check" data-size="20"></span>Acknowledge open</button>
+      </div>
+      <div id="aFeed"></div>
+    </section>
+    <aside class="card" id="aDetail" aria-label="Alert detail" aria-live="polite" hidden></aside>
+  </section>
+
+  <!-- ===== History ===== -->
+  <section class="view split" id="view-history" aria-label="History" hidden>
+    <aside class="card" aria-label="Event archive">
+      <div class="card-head"><div><h2 class="t-title">Event archive</h2><p class="t-mono c2" id="hCount">2026 · 06 events</p></div></div>
+      <div class="stats" id="hStats"></div>
+      <div id="hFilters"></div>
+    </aside>
+    <section class="card" aria-label="Past events">
+      <div class="card-head"><div><h2 class="t-title">Past events</h2><p class="t-mono c2">Newest first · peak level per event</p></div></div>
+      <div class="hhead"><span>Date</span><span>Kaiju</span><span>Location</span><span>Peak</span><span class="num">Evacuated</span><span></span></div>
+      <div id="hList"></div>
+    </section>
+    <aside class="card" id="hDetail" aria-label="Event detail" aria-live="polite" hidden></aside>
+  </section>
+
+  <!-- ===== modal & toast ===== -->
+  <div class="scrim" id="scrim" hidden></div>
+  <div class="toast" id="toast" role="status" hidden></div>
 
   <div class="narrow" id="narrow">
     <p class="t-heading">The ops dashboard is built for large screens</p>
@@ -260,7 +445,7 @@ orders</span></div>
   </div>
 
 <script>
-const ICONS = {"siren":["M128 16L128 8M200 40L208 32M56 40L48 32M48,168V128a80,80,0,0,1,80.61-80c44.11.33,79.39,36.89,79.39,81v39M136,80c22.7,3.81,40,24.22,40,48M40 168h176a8 8 0 0 1 8 8v24a8 8 0 0 1 -8 8h-176a8 8 0 0 1 -8 -8v-24a8 8 0 0 1 8 -8Z"],"bell":["M96,192a32,32,0,0,0,64,0M56,104a72,72,0,0,1,144,0c0,35.82,8.3,64.6,14.9,76A8,8,0,0,1,208,192H48a8,8,0,0,1-6.88-12C47.71,168.6,56,139.81,56,104Z"],"globe-hemisphere-east":["M32 128a96 96 0 1 0 192 0a96 96 0 1 0 -192 0ZM184.42,205.68l-9.36-9.37a8,8,0,0,0-3.63-2.09L150,188.59a8,8,0,0,1-5.88-8.9l2.38-16.2a8,8,0,0,1,4.85-6.22l30.45-12.66a8,8,0,0,1,8.47,1.49L215,168.71M50.49,184.65l9.92-6.52A8,8,0,0,0,64,171.49l.21-36.23a8.06,8.06,0,0,1,1.35-4.41l20.94-31.3a8,8,0,0,1,11.34-2l19.81,13a8.06,8.06,0,0,0,5.77,1.45l31.46-4.26a8,8,0,0,0,5-2.71L182.06,79.2A8,8,0,0,0,184,74V50"],"sidebar-simple":["M88 48L88 208M40 48h176a8 8 0 0 1 8 8v144a8 8 0 0 1 -8 8h-176a8 8 0 0 1 -8 -8v-144a8 8 0 0 1 8 -8Z"],"corners-out":["M168 48L208 48 208 88M88 208L48 208 48 168M208 168L208 208 168 208M48 88L48 48 88 48"],"corners-in":["M208 96L160 96 160 48M48 160L96 160 96 208M160 208L160 160 208 160M96 48L96 96 48 96"],"caret-right":["M96 48L176 128 96 208"],"caret-down":["M208 96L128 176 48 96"],"caret-up":["M48 160L128 80 208 160"],"x":["M200 56L56 200M200 200L56 56"],"radioactive":["M109.77,97,83.82,52a8,8,0,0,0-11.55-2.54A95.94,95.94,0,0,0,32,119.14,8.1,8.1,0,0,0,40,128H92M146.23,97l26-44.94a8,8,0,0,1,11.55-2.54A95.94,95.94,0,0,1,224,119.14a8.1,8.1,0,0,1-8,8.86H164M146,159.18l25.83,44.73a8,8,0,0,1-3.56,11.26,96.24,96.24,0,0,1-80.54,0,8,8,0,0,1-3.56-11.26L110,159.18","M116 128a12 12 0 1 0 24 0a12 12 0 1 0 -24 0Z"],"waveform":["M48 96L48 160M88 32L88 224M128 64L128 192M168 96L168 160M208 80L208 176"],"cloud-lightning":["M88,88a68.06,68.06,0,1,1,68,72H76A44,44,0,1,1,90.2,74.34M120 240L144 200 104 200 128 160"],"buildings":["M136,216V32a8,8,0,0,0-12.44-6.65l-80,53.33A8,8,0,0,0,40,85.35V216M136,88h72a8,8,0,0,1,8,8V216M16 216L240 216M104 112L104 128M72 112L72 128M72 168L72 184M104 168L104 184"],"map-pin":["M96 104a32 32 0 1 0 64 0a32 32 0 1 0 -64 0ZM208,104c0,72-80,128-80,128S48,176,48,104a80,80,0,0,1,160,0Z"],"navigation-arrow":["M152,152,234.35,129a8,8,0,0,0,.27-15.21l-176-65.28A8,8,0,0,0,48.46,58.63l65.28,176a8,8,0,0,0,15.21-.27Z"],"arrow-up":["M128 216L128 40M56 112L128 40 200 112"],"arrow-bend-up-right":["M176 152L224 104 176 56M32,200a96,96,0,0,1,96-96h96"],"arrow-bend-up-left":["M80 152L32 104 80 56M224,200a96,96,0,0,0-96-96H32"],"person-simple-run":["M128 56a24 24 0 1 0 48 0a24 24 0 1 0 -48 0ZM56,105.6s32-25.67,80,7c50.47,34.3,80,20.85,80,20.85M110.64,161.16C128.47,165,176,180,176,232M134.44,111.51C128.37,135.24,98.81,206.68,32,200"],"shield-check":["M216,112V56a8,8,0,0,0-8-8H48a8,8,0,0,0-8,8v56c0,96,88,120,88,120S216,208,216,112ZM88 136L112 160 168 104"],"arrows-clockwise":["M168 96L216 96 216 48M216,96,187.72,67.72A88,88,0,0,0,64,67M88 160L40 160 40 208M40,160l28.28,28.28A88,88,0,0,0,192,189"],"clock":["M32 128a96 96 0 1 0 192 0a96 96 0 1 0 -192 0ZM128 72L128 128 184 128"],"plus":["M40 128L216 128M128 40L128 216"],"minus":["M40 128L216 128"],"warning":["M142.41,40.22l87.46,151.87C236,202.79,228.08,216,215.46,216H40.54C27.92,216,20,202.79,26.13,192.09L113.59,40.22C119.89,29.26,136.11,29.26,142.41,40.22ZM128 144L128 104","M116 180a12 12 0 1 0 24 0a12 12 0 1 0 -24 0Z"],"check-circle":["M88 136L112 160 168 104M32 128a96 96 0 1 0 192 0a96 96 0 1 0 -192 0Z"],"users-three":["M192,120a59.91,59.91,0,0,1,48,24M16,144a59.91,59.91,0,0,1,48-24M88 144a40 40 0 1 0 80 0a40 40 0 1 0 -80 0ZM72,216a65,65,0,0,1,112,0M161,80a32,32,0,1,1,31,40M64,120A32,32,0,1,1,95,80"],"gps-fix":["M128 240L128 208M48 128a80 80 0 1 0 160 0a80 80 0 1 0 -160 0ZM128 16L128 48M16 128L48 128M240 128L208 128M96 128a32 32 0 1 0 64 0a32 32 0 1 0 -64 0Z"],"arrow-right":["M40 128L216 128M144 56L216 128 144 200"],"check":["M40 144L96 200 224 72"],"broadcast":["M96 128a32 32 0 1 0 64 0a32 32 0 1 0 -64 0ZM181.67,80a71.94,71.94,0,0,1,0,96M74.33,176a71.94,71.94,0,0,1,0-96M208,49.62a111.88,111.88,0,0,1,0,156.76M48,206.38A111.88,111.88,0,0,1,48,49.62"]};
+const ICONS = {"siren":["M128 16L128 8M200 40L208 32M56 40L48 32M48,168V128a80,80,0,0,1,80.61-80c44.11.33,79.39,36.89,79.39,81v39M136,80c22.7,3.81,40,24.22,40,48M40 168h176a8 8 0 0 1 8 8v24a8 8 0 0 1 -8 8h-176a8 8 0 0 1 -8 -8v-24a8 8 0 0 1 8 -8Z"],"bell":["M96,192a32,32,0,0,0,64,0M56,104a72,72,0,0,1,144,0c0,35.82,8.3,64.6,14.9,76A8,8,0,0,1,208,192H48a8,8,0,0,1-6.88-12C47.71,168.6,56,139.81,56,104Z"],"globe-hemisphere-east":["M32 128a96 96 0 1 0 192 0a96 96 0 1 0 -192 0ZM184.42,205.68l-9.36-9.37a8,8,0,0,0-3.63-2.09L150,188.59a8,8,0,0,1-5.88-8.9l2.38-16.2a8,8,0,0,1,4.85-6.22l30.45-12.66a8,8,0,0,1,8.47,1.49L215,168.71M50.49,184.65l9.92-6.52A8,8,0,0,0,64,171.49l.21-36.23a8.06,8.06,0,0,1,1.35-4.41l20.94-31.3a8,8,0,0,1,11.34-2l19.81,13a8.06,8.06,0,0,0,5.77,1.45l31.46-4.26a8,8,0,0,0,5-2.71L182.06,79.2A8,8,0,0,0,184,74V50"],"sidebar-simple":["M88 48L88 208M40 48h176a8 8 0 0 1 8 8v144a8 8 0 0 1 -8 8h-176a8 8 0 0 1 -8 -8v-144a8 8 0 0 1 8 -8Z"],"corners-out":["M168 48L208 48 208 88M88 208L48 208 48 168M208 168L208 208 168 208M48 88L48 48 88 48"],"corners-in":["M208 96L160 96 160 48M48 160L96 160 96 208M160 208L160 160 208 160M96 48L96 96 48 96"],"caret-right":["M96 48L176 128 96 208"],"caret-down":["M208 96L128 176 48 96"],"caret-up":["M48 160L128 80 208 160"],"x":["M200 56L56 200M200 200L56 56"],"radioactive":["M109.77,97,83.82,52a8,8,0,0,0-11.55-2.54A95.94,95.94,0,0,0,32,119.14,8.1,8.1,0,0,0,40,128H92M146.23,97l26-44.94a8,8,0,0,1,11.55-2.54A95.94,95.94,0,0,1,224,119.14a8.1,8.1,0,0,1-8,8.86H164M146,159.18l25.83,44.73a8,8,0,0,1-3.56,11.26,96.24,96.24,0,0,1-80.54,0,8,8,0,0,1-3.56-11.26L110,159.18","M116 128a12 12 0 1 0 24 0a12 12 0 1 0 -24 0Z"],"waveform":["M48 96L48 160M88 32L88 224M128 64L128 192M168 96L168 160M208 80L208 176"],"cloud-lightning":["M88,88a68.06,68.06,0,1,1,68,72H76A44,44,0,1,1,90.2,74.34M120 240L144 200 104 200 128 160"],"buildings":["M136,216V32a8,8,0,0,0-12.44-6.65l-80,53.33A8,8,0,0,0,40,85.35V216M136,88h72a8,8,0,0,1,8,8V216M16 216L240 216M104 112L104 128M72 112L72 128M72 168L72 184M104 168L104 184"],"map-pin":["M96 104a32 32 0 1 0 64 0a32 32 0 1 0 -64 0ZM208,104c0,72-80,128-80,128S48,176,48,104a80,80,0,0,1,160,0Z"],"navigation-arrow":["M152,152,234.35,129a8,8,0,0,0,.27-15.21l-176-65.28A8,8,0,0,0,48.46,58.63l65.28,176a8,8,0,0,0,15.21-.27Z"],"arrow-up":["M128 216L128 40M56 112L128 40 200 112"],"arrow-bend-up-right":["M176 152L224 104 176 56M32,200a96,96,0,0,1,96-96h96"],"arrow-bend-up-left":["M80 152L32 104 80 56M224,200a96,96,0,0,0-96-96H32"],"person-simple-run":["M128 56a24 24 0 1 0 48 0a24 24 0 1 0 -48 0ZM56,105.6s32-25.67,80,7c50.47,34.3,80,20.85,80,20.85M110.64,161.16C128.47,165,176,180,176,232M134.44,111.51C128.37,135.24,98.81,206.68,32,200"],"shield-check":["M216,112V56a8,8,0,0,0-8-8H48a8,8,0,0,0-8,8v56c0,96,88,120,88,120S216,208,216,112ZM88 136L112 160 168 104"],"arrows-clockwise":["M168 96L216 96 216 48M216,96,187.72,67.72A88,88,0,0,0,64,67M88 160L40 160 40 208M40,160l28.28,28.28A88,88,0,0,0,192,189"],"clock":["M32 128a96 96 0 1 0 192 0a96 96 0 1 0 -192 0ZM128 72L128 128 184 128"],"plus":["M40 128L216 128M128 40L128 216"],"minus":["M40 128L216 128"],"warning":["M142.41,40.22l87.46,151.87C236,202.79,228.08,216,215.46,216H40.54C27.92,216,20,202.79,26.13,192.09L113.59,40.22C119.89,29.26,136.11,29.26,142.41,40.22ZM128 144L128 104","M116 180a12 12 0 1 0 24 0a12 12 0 1 0 -24 0Z"],"check-circle":["M88 136L112 160 168 104M32 128a96 96 0 1 0 192 0a96 96 0 1 0 -192 0Z"],"users-three":["M192,120a59.91,59.91,0,0,1,48,24M16,144a59.91,59.91,0,0,1,48-24M88 144a40 40 0 1 0 80 0a40 40 0 1 0 -80 0ZM72,216a65,65,0,0,1,112,0M161,80a32,32,0,1,1,31,40M64,120A32,32,0,1,1,95,80"],"gps-fix":["M128 240L128 208M48 128a80 80 0 1 0 160 0a80 80 0 1 0 -160 0ZM128 16L128 48M16 128L48 128M240 128L208 128M96 128a32 32 0 1 0 64 0a32 32 0 1 0 -64 0Z"],"arrow-right":["M40 128L216 128M144 56L216 128 144 200"],"check":["M40 144L96 200 224 72"],"broadcast":["M96 128a32 32 0 1 0 64 0a32 32 0 1 0 -64 0ZM181.67,80a71.94,71.94,0,0,1,0,96M74.33,176a71.94,71.94,0,0,1,0-96M208,49.62a111.88,111.88,0,0,1,0,156.76M48,206.38A111.88,111.88,0,0,1,48,49.62"],"play":["M72,39.88V216.12a8,8,0,0,0,12.15,6.69l144.08-88.12a7.82,7.82,0,0,0,0-13.38L84.15,33.19A8,8,0,0,0,72,39.88Z"],"pause":["M160 40h40a8 8 0 0 1 8 8v160a8 8 0 0 1 -8 8h-40a8 8 0 0 1 -8 -8v-160a8 8 0 0 1 8 -8ZM56 40h40a8 8 0 0 1 8 8v160a8 8 0 0 1 -8 8h-40a8 8 0 0 1 -8 -8v-160a8 8 0 0 1 8 -8Z"],"speaker-high":["M80,168H32a8,8,0,0,1-8-8V96a8,8,0,0,1,8-8H80l72-56V224ZM80 88L80 168M192,106.85a32,32,0,0,1,0,42.3M221.67,80a72,72,0,0,1,0,96"]};
 const icon = (n, s = 24) => `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 256 256" aria-hidden="true">${ICONS[n][0] ? `<path d="${ICONS[n][0]}" fill="none" stroke="currentColor" stroke-width="21.33" stroke-linecap="round" stroke-linejoin="round"/>` : ''}${ICONS[n][1] ? `<path d="${ICONS[n][1]}" fill="currentColor"/>` : ''}</svg>`;
 document.querySelectorAll('[data-icon]').forEach(el => { el.insertAdjacentHTML('afterbegin', icon(el.dataset.icon, +(el.dataset.size || 24))); });
 
@@ -395,17 +580,18 @@ function select(id, pan) {
 
 /* ---- map pan & zoom, wraps horizontally ---- */
 const map = $('map'), layer = $('layer');
-let view = { s: 1, tx: 0, ty: 0 }, raf = 0, settle = 0;
+let view = { s: 1, tx: 0, ty: 0 }, raf = 0, settle = 0, onPlace = null;
 const minScale = () => Math.max(map.clientHeight / 844, map.clientWidth / 2160);
 const span = () => 1440 * view.s;
 function normalize() { const w = span(); view.tx = ((view.tx % w) + w) % w - w; }
 function clampY() {
-  view.s = Math.min(Math.max(view.s, minScale()), minScale() * 6);
+  view.s = Math.min(Math.max(view.s, minScale()), minScale() * 10);
   view.ty = Math.min(0, Math.max(map.clientHeight - 844 * view.s, view.ty));
 }
 function apply(wrap = true) {
   clampY(); if (wrap) normalize();
-  layer.style.transform = `translate(${view.tx - 2 * span()}px, ${view.ty}px) scale(${view.s})`;
+  layer.style.transform = `translate(${view.tx - 2 * span()}px, ${view.ty}px)`;
+  layer.style.width = `${7200 * view.s}px`; layer.style.height = `${844 * view.s}px`;
   placePins();
 }
 function placePins() {
@@ -417,6 +603,7 @@ function placePins() {
     const d = Math.abs(x - W / 2); if (!best[k.id] || d < best[k.id].d) best[k.id] = { p, d };
   });
   document.querySelectorAll('.pin').forEach(p => { const on = best[p.dataset.id].p === p; p.tabIndex = on ? 0 : -1; on ? p.removeAttribute('aria-hidden') : p.setAttribute('aria-hidden', 'true'); });
+  if (onPlace) onPlace();
   const g = best.godzilla && best.godzilla.p; if (!g) return;
   const off = view.tx + +g.dataset.copy * w, P = ([x, y]) => [Math.round(x * view.s + off), Math.round(y * view.s + view.ty)];
   const d = 'M' + TRACK.map(pt => P(pt).join(' ')).join('L');
@@ -431,9 +618,9 @@ function animated(fn) {
   clearTimeout(settle); settle = setTimeout(() => { map.classList.remove('animate'); apply(); }, 340);
 }
 function zoomAt(f, cx, cy, anim) {
-  const s0 = view.s, s1 = Math.min(Math.max(s0 * f, minScale()), minScale() * 6);
-  const go = () => { view.tx = cx - (cx - view.tx) * (s1 / s0); view.ty = cy - (cy - view.ty) * (s1 / s0); view.s = s1; };
-  anim ? animated(go) : (go(), apply());
+  const s0 = view.s, s1 = Math.min(Math.max(s0 * f, minScale()), minScale() * 10);
+  if (anim) { flyTo((cx - view.tx) / s0, (cy - view.ty) / s0, s1, 280); return; }
+  view.tx = cx - (cx - view.tx) * (s1 / s0); view.ty = cy - (cy - view.ty) * (s1 / s0); view.s = s1; apply();
 }
 function centerOn(k, anim) {
   const go = () => {
@@ -516,7 +703,7 @@ window.addEventListener('resize', () => apply());
 
 /* ---- interactions ---- */
 $('list').addEventListener('click', e => { const b = e.target.closest('.row'); if (b) select(b.dataset.id, true); });
-$('pins').addEventListener('click', e => { const b = e.target.closest('.pin'); if (b) select(b.dataset.id, false); });
+$('pins').addEventListener('click', e => { const b = e.target.closest('.pin'); if (b) select(b.dataset.id, true); });
 $('right').addEventListener('click', e => {
   const b = e.target.closest('.signal-btn'); if (!b) return;
   const i = +b.dataset.sig, open = b.getAttribute('aria-expanded') !== 'true';
@@ -591,6 +778,441 @@ else {
   setTimeout(() => flyTo(KAIJU[0].x, KAIJU[0].y, minScale() * 2, 1100), 350);
   ['left', 'banner', 'right'].forEach((id, i) => $(id).animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 240, delay: 900 + i * 60, easing: EASE_OUT, fill: 'backwards' }));
 }
+
+/* =====================================================================
+   Views: Alerts, History and the history replay on the map stage
+   ===================================================================== */
+const nowUTC = () => new Date().toISOString().slice(11, 16);
+const pad2 = n => String(n).padStart(2, '0');
+const fadeIn = (el, dy = 0) => el.animate(reduce.matches || !dy ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: `translateY(${dy}px)` }, { opacity: 1, transform: 'none' }], { duration: 200, easing: EASE_OUT });
+document.querySelectorAll('#view-alerts [data-icon], #view-history [data-icon]').forEach(el => { if (!el.querySelector('svg')) el.insertAdjacentHTML('afterbegin', icon(el.dataset.icon, +(el.dataset.size || 24))); });
+$('rPlay').innerHTML = icon('pause');
+
+/* ---------- routing ---------- */
+let current = 'overview';
+function show(v) {
+  const prev = current; current = v;
+  const onStage = v === 'overview' || v === 'replay';
+  $('view-alerts').hidden = v !== 'alerts';
+  $('view-history').hidden = v !== 'history';
+  stage.inert = !onStage;
+  stage.classList.toggle('mode-replay', v === 'replay');
+  const tab = v === 'replay' ? 'history' : v;
+  document.querySelectorAll('.tab').forEach(t => t.dataset.view === tab ? t.setAttribute('aria-current', 'page') : t.removeAttribute('aria-current'));
+  if (onStage) apply();
+  if (prev !== v) fadeIn(onStage ? stage : $('view-' + v));
+  if (v === 'alerts') armIncoming();
+  if (v !== 'replay' && R) stopReplay();
+}
+function route() {
+  const h = location.hash.slice(1);
+  if (h === 'history/replay' && R) show('replay');
+  else show(h === 'alerts' || h === 'history' ? h : 'overview');
+}
+window.addEventListener('hashchange', route);
+
+/* ---------- modal & toast ---------- */
+let modalClose = null, lastFocus = null;
+function openModal(html, onClose) {
+  const sc = $('scrim'); lastFocus = document.activeElement;
+  sc.innerHTML = html; sc.hidden = false; modalClose = onClose || null;
+  document.querySelectorAll('.nav, .stage, .view').forEach(el => el.inert = true);
+  const m = sc.firstElementChild;
+  sc.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 150, easing: EASE_OUT });
+  m.animate(reduce.matches ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'scale(0.96)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 200, easing: EASE_OUT });
+  const f = m.querySelector('[data-autofocus]') || m.querySelector('button, input'); if (f) f.focus();
+  return m;
+}
+function closeModal() {
+  const sc = $('scrim'); if (sc.hidden) return;
+  const m = sc.firstElementChild;
+  const a = m.animate(reduce.matches ? [{ opacity: 1 }, { opacity: 0 }] : [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(0.98)' }], { duration: 150, easing: EASE_OUT, fill: 'forwards' });
+  sc.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 150, easing: EASE_OUT, fill: 'forwards' });
+  a.onfinish = () => { sc.hidden = true; sc.innerHTML = ''; sc.getAnimations().forEach(x => x.cancel()); };
+  document.querySelectorAll('.nav, .view').forEach(el => el.inert = false);
+  stage.inert = !(current === 'overview' || current === 'replay');
+  if (lastFocus && document.body.contains(lastFocus)) lastFocus.focus();
+}
+document.addEventListener('keydown', e => {
+  const sc = $('scrim');
+  if (!sc.hidden) {
+    if (e.key === 'Escape') { e.preventDefault(); modalClose ? modalClose() : closeModal(); }
+    if (e.key === 'Tab') { const f = [...sc.querySelectorAll('button:not([disabled]), input:not([disabled])')]; if (!f.length) return; const i = f.indexOf(document.activeElement);
+      if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); } }
+    return;
+  }
+  if (e.key === 'Escape' && current === 'replay') exitReplay();
+});
+let toastTimer = 0;
+function toast(title, sub) {
+  const t = $('toast'); clearTimeout(toastTimer);
+  t.innerHTML = `${icon('check-circle')}<div><p class="t-body-strong">${title}</p><p class="t-mono">${sub}</p></div><button class="icon-btn" aria-label="Dismiss">${icon('x')}</button>`;
+  t.hidden = false;
+  t.animate(reduce.matches ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translate(-50%, 16px)' }, { opacity: 1, transform: 'translate(-50%, 0)' }], { duration: 240, easing: EASE_OUT });
+  const hide = () => { clearTimeout(toastTimer); t.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 150, easing: EASE_OUT }).onfinish = () => { t.hidden = true; }; };
+  t.querySelector('button').onclick = hide; toastTimer = setTimeout(hide, 6000);
+}
+
+/* ---------- alerts data ---------- */
+const ALERTS = [
+  { id: 'a1', day: 0, time: '03:36', title: 'Evacuation order issued', kaiju: 'GODZILLA', kid: 'godzilla', place: 'Makassar, Indonesia', type: 'EVACUATION', level: 'critical', open: true, evac: true,
+    facts: [['Zone', 'A · 2 km'], ['People', '214,000'], ['Evac points', '12 open'], ['Lead time', '01:38']],
+    delivery: [['Push notification', '98.2%'], ['SMS broadcast', '100%'], ['Sirens active', '46 / 48']],
+    timeline: [['03:36', 'Order issued by Command OPR-01'], ['03:38', 'Delivered to 214,000 devices'], ['03:40', 'Sirens triggered in Zone A']] },
+  { id: 'a2', day: 0, time: '03:20', title: 'Landfall projected under 2 h', kaiju: 'GODZILLA', kid: 'godzilla', place: 'Makassar Strait', type: 'THREAT', level: 'critical', open: true,
+    facts: [['ETA', '01:54'], ['Distance', '74 km'], ['Speed', '38 km/h'], ['Heading', '082° east']],
+    timeline: [['03:20', 'Track crossed the 100 km line'], ['03:21', 'Threat raised to critical by model GT-4']] },
+  { id: 'a3', day: 0, time: '02:58', title: 'Radiation spike ×32', kaiju: 'GODZILLA', kid: 'godzilla', place: 'Buoy MKS-14', type: 'SIGNAL', level: 'elevated', open: false,
+    facts: [['Reading', '4.8 µSv/h'], ['Baseline', '0.15 µSv/h'], ['Source', 'Buoy MKS-14'], ['Distance', '12 km']],
+    timeline: [['02:58', 'Spike detected at buoy MKS-14'], ['03:02', 'Acknowledged by OPR-04']] },
+  { id: 'a4', day: 0, time: '02:10', title: 'New anomaly detected', kaiju: 'UNKNOWN-07', kid: 'unknown07', place: 'Mariana Trench', type: 'DETECTION', level: 'elevated', open: false,
+    facts: [['Depth', '7,200 m'], ['Best match', 'Benthic 58%'], ['Source', 'Hydrophones'], ['Speed', '12 km/h']],
+    timeline: [['02:10', 'Unregistered signature on hydrophone array'], ['02:14', 'Acknowledged by OPR-02']] },
+  { id: 'a5', day: 0, time: '01:44', title: 'Seismic swarm M5.4', kaiju: 'UNKNOWN-07', kid: 'unknown07', place: 'Mariana Trench', type: 'SIGNAL', level: 'elevated', open: false,
+    facts: [['Magnitude', 'M5.4'], ['Depth', '7,200 m'], ['Events', '42 / 6 h'], ['Station', 'GUMO']],
+    timeline: [['01:44', 'Swarm detected at station GUMO'], ['01:50', 'Acknowledged by OPR-02']] },
+  { id: 'a6', day: 1, time: '21:12', title: 'Storm cell at category 5', kaiju: 'KING GHIDORAH', kid: 'ghidorah', place: 'North Pacific', type: 'SIGNAL', level: 'elevated', open: false,
+    facts: [['Peak wind', '290 km/h'], ['Pressure', '912 hPa'], ['Radius', '180 km'], ['Heading', '220° SW']],
+    timeline: [['21:12', 'Storm cell locked to target'], ['21:20', 'Flight corridor R220 closed']] },
+  { id: 'a7', day: 1, time: '19:05', title: 'Thermal rise at crater', kaiju: 'RODAN', kid: 'rodan', place: 'Mount Aso, Japan', type: 'SIGNAL', level: 'monitoring', open: false,
+    facts: [['Crater temp', '+4°C'], ['Gas output', 'Normal'], ['Station', 'Aso-3'], ['Exclusion', '4 km']],
+    timeline: [['19:05', 'Thermal rise at station Aso-3'], ['19:12', 'Acknowledged by OPR-06']] },
+  { id: 'a8', day: 1, time: '12:40', title: 'Dormancy confirmed', kaiju: 'MOTHRA', kid: 'mothra', place: 'South Pacific', type: 'STATUS', level: 'monitoring', open: false,
+    facts: [['Drift', '4 km/h'], ['Light level', '2× night sky'], ['Field radius', '6 km'], ['Contact', 'None']],
+    timeline: [['12:40', 'Dormancy confirmed by survey flight'], ['12:44', 'Acknowledged by OPR-01']] }
+];
+const DAYS = ['Today · 11 Nov', 'Yesterday · 10 Nov'];
+const FILTERS = {
+  level: [['critical', 'Critical'], ['elevated', 'Elevated'], ['monitoring', 'Monitoring']],
+  status: [['open', 'Open'], ['ack', 'Acknowledged']],
+  kaiju: KAIJU.map(k => [k.id, k.name.replace('KING ', 'KING ')])
+};
+const aOn = { level: new Set(['critical', 'elevated', 'monitoring']), status: new Set(['open', 'ack']), kaiju: new Set(KAIJU.map(k => k.id)) };
+let aSel = null;
+const zones = { A: { name: 'Zone A · Makassar city', people: 214000, sent: true }, B: { name: 'Zone B · Makassar coast', note: 'Inside 2 km danger radius', people: 96000, sent: false }, C: { name: 'Zone C · Maros', note: 'On projected path, +6 h', people: 41000, sent: false } };
+const fmtN = n => n.toLocaleString('en-US');
+const aKey = (a, g) => g === 'level' ? a.level : g === 'status' ? (a.open ? 'open' : 'ack') : a.kid;
+const visible = () => ALERTS.filter(a => ['level', 'status', 'kaiju'].every(g => aOn[g].has(aKey(a, g))));
+
+function renderFilters() {
+  const titles = { level: 'Level', status: 'Status', kaiju: 'Kaiju' };
+  $('aFilters').innerHTML = Object.keys(FILTERS).map(g => `
+    <div class="group"><p class="t-label c2">${titles[g]}</p>
+      ${FILTERS[g].map(([v, lb]) => `<label class="check"><input type="checkbox" data-g="${g}" value="${v}" ${aOn[g].has(v) ? 'checked' : ''}><span class="name">${lb}</span><span class="t-mono c2">${pad2(ALERTS.filter(a => aKey(a, g) === v).length)}</span></label>`).join('')}
+    </div>`).join('');
+}
+function renderFeed() {
+  const list = visible();
+  $('aCount').textContent = `${pad2(list.length)} alerts · last 24 h`;
+  if (!list.length) { $('aFeed').innerHTML = '<p class="empty">No alerts match these filters.</p>'; return; }
+  $('aFeed').innerHTML = [0, 1].map(d => {
+    const rows = list.filter(a => a.day === d); if (!rows.length) return '';
+    return `<p class="day">${DAYS[d]}</p>` + rows.map(a => `
+      <button class="arow" data-id="${a.id}" aria-current="${a.id === aSel}">
+        <span class="glyph ${a.level}" aria-label="${LV[a.level]}"></span>
+        <span class="t-mono c2">${a.time}</span>
+        <span class="txt"><span class="t-body-strong">${a.title}</span><span class="t-label c2">${a.kaiju} · ${a.place}</span></span>
+        <span class="type">${a.type}</span>
+        <span class="status ${a.open ? 'open' : ''}">${a.open ? 'OPEN' : 'ACK'}</span>
+        <span class="c2">${icon('caret-right', 20)}</span>
+      </button>`).join('');
+  }).join('');
+  $('ackAll').disabled = !ALERTS.some(a => a.open);
+  $('ackAll').classList.toggle('btn', true);
+}
+function renderADetail() {
+  const a = ALERTS.find(x => x.id === aSel), d = $('aDetail'), v = $('view-alerts');
+  if (!a) { d.hidden = true; v.classList.remove('has-detail'); return; }
+  d.hidden = false; v.classList.add('has-detail');
+  const allSent = Object.values(zones).every(z => z.sent);
+  d.innerHTML = `
+    <div class="card-head"><div><p class="t-mono c2">ALERT · ${a.type}</p><h2 class="t-heading">${a.title}</h2><p class="c2">${a.kaiju} · ${a.place}</p></div>
+      <button class="icon-btn" data-close aria-label="Close alert detail">${icon('x')}</button></div>
+    <div class="status-line"><span class="tag ${a.level}">${LV[a.level]}</span><span class="t-mono-strong ${a.open ? 'ca' : 'c2'}">${a.open ? 'OPEN' : 'ACK'} · ${a.time} UTC</span></div>
+    <div class="facts" style="margin-top:16px">${a.facts.map(([l, v]) => `<div class="fact"><span class="t-label">${l}</span><span class="t-numeral-m">${v}</span></div>`).join('')}</div>
+    ${a.delivery ? `<div class="block" style="margin-top:16px;gap:8px"><p class="t-label c2">Public delivery</p>${a.delivery.map(([l, v]) => `<div class="kv"><span>${l}</span><span class="t-mono-strong">${v}</span></div>`).join('')}</div>` : ''}
+    <div style="margin-top:16px"><p class="t-label c2">Timeline · UTC</p>
+      ${a.timeline.map(([t, e, fresh]) => `<div class="tl${fresh ? ' new' : ''}"><span class="t-mono ${fresh ? 'ca' : 'c2'}">${t}</span><span>${e}</span></div>`).join('')}</div>
+    <div class="stack">
+      ${a.evac ? `<button class="btn alert l" data-extend ${allSent ? 'disabled' : ''}>${icon('siren', 20)}${allSent ? 'All zones notified' : 'Extend to more zones'}</button>` : ''}
+      ${a.open ? `<button class="btn ${a.evac ? 'out' : 'alert'} l" data-ack>${icon('check', 20)}Acknowledge</button>` : ''}
+      <button class="btn out l" data-map>${icon('map-pin', 20)}View on map</button>
+    </div>`;
+  a.timeline.forEach(x => x[2] = false);
+}
+function updateBadge() {
+  $('bell').classList.toggle('on', ALERTS.some(a => a.open && a.level === 'critical'));
+}
+function renderAlerts() { renderFilters(); renderFeed(); renderADetail(); updateBadge(); }
+function ack(a) { if (!a.open) return; a.open = false; a.timeline.push([nowUTC(), 'Acknowledged by OPR-01', true]); }
+
+$('aFilters').addEventListener('change', e => { const c = e.target; if (!c.dataset.g) return; c.checked ? aOn[c.dataset.g].add(c.value) : aOn[c.dataset.g].delete(c.value); renderFeed(); });
+$('aReset').onclick = () => { aOn.level = new Set(FILTERS.level.map(x => x[0])); aOn.status = new Set(['open', 'ack']); aOn.kaiju = new Set(KAIJU.map(k => k.id)); renderFilters(); renderFeed(); };
+$('sound').onclick = e => { const b = e.currentTarget, on = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', on); b.textContent = on ? 'ON' : 'OFF'; };
+$('aFeed').addEventListener('click', e => {
+  const r = e.target.closest('.arow'); if (!r) return;
+  const opening = aSel === null; aSel = r.dataset.id; renderFeed(); renderADetail();
+  if (opening) fadeIn($('aDetail'), 8);
+});
+$('ackAll').onclick = () => { ALERTS.forEach(ack); renderAlerts(); };
+$('aDetail').addEventListener('click', e => {
+  const a = ALERTS.find(x => x.id === aSel); if (!a) return;
+  if (e.target.closest('[data-close]')) { aSel = null; renderFeed(); renderADetail(); }
+  else if (e.target.closest('[data-ack]')) { ack(a); renderAlerts(); }
+  else if (e.target.closest('[data-map]')) { location.hash = '#overview'; setTimeout(() => select(a.kid, true), 60); }
+  else if (e.target.closest('[data-extend]')) openExtend(a);
+});
+
+/* ---------- extend evacuation broadcast ---------- */
+function openExtend(a) {
+  const free = Object.entries(zones).filter(([, z]) => !z.sent);
+  const sent = Object.entries(zones).filter(([, z]) => z.sent);
+  const m = openModal(`
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="exTitle">
+      <div class="m-head"><span class="ca">${icon('siren')}</span>
+        <div><h2 class="t-heading" id="exTitle">Extend evacuation broadcast</h2><p class="t-mono c2">${a.kaiju} · ${a.place} · landfall in <span data-eta-short>${fmt(etaSeconds).slice(0, 5)}</span></p></div>
+        <button class="icon-btn" data-x aria-label="Close">${icon('x')}</button></div>
+      <div class="m-body">
+        <fieldset style="border:0;padding:0;margin:0;min-width:0;display:flex;flex-direction:column;gap:8px"><legend class="t-label c2" style="margin-bottom:8px">Add zone</legend>
+          ${free.map(([k, z], i) => `<label class="opt"><input type="radio" name="zone" value="${k}" ${i ? '' : 'checked'}><div><p class="t-body-strong">${z.name}</p><p class="t-label c2">${z.note}</p></div><span class="t-mono-strong">${fmtN(z.people)} people</span></label>`).join('')}
+          <p class="t-label c2" style="display:flex;gap:8px;align-items:center">${icon('check-circle', 16)}${sent.map(([k, z]) => `Zone ${k} · ${fmtN(z.people)} people`).join(', ')} already sent</p>
+        </fieldset>
+        <div style="display:flex;flex-direction:column;gap:8px"><p class="t-label c2">Public message preview · Bahasa Indonesia</p>
+          <div class="preview"><p class="preview-title">${icon('siren', 20)}<span class="t-title">EVAKUASI SEKARANG</span></p><p>${a.kaiju} diperkirakan tiba di pesisir Makassar dalam 1 jam 38 menit. Segera menuju titik evakuasi terdekat.</p></div></div>
+        <div style="display:flex;flex-direction:column;gap:8px"><p class="t-label c2">Channels</p>
+          <div class="chips">${['Push notification', 'SMS broadcast', 'Sirens'].map(c => `<label class="check"><input type="checkbox" name="ch" value="${c}" checked><span>${c}</span></label>`).join('')}</div></div>
+      </div>
+      <div class="m-foot"><span class="c2">${icon('warning', 20)}</span><p class="t-label c2">Needs a second confirmation from the duty officer. A sent alert cannot be recalled.</p>
+        <button class="btn out" data-x>Cancel</button><button class="btn alert" data-go>${icon('siren', 20)}<span data-golabel></span></button></div>
+    </div>`, closeModal);
+  const label = () => { const z = zones[m.querySelector('input[name=zone]:checked').value]; const ch = m.querySelectorAll('input[name=ch]:checked').length;
+    m.querySelector('[data-golabel]').textContent = `Broadcast to ${fmtN(z.people)} people`; m.querySelector('[data-go]').disabled = !ch; };
+  label(); m.addEventListener('change', label);
+  m.addEventListener('click', e => {
+    if (e.target.closest('[data-x]')) closeModal();
+    if (e.target.closest('[data-go]')) {
+      const key = m.querySelector('input[name=zone]:checked').value, z = zones[key];
+      const ch = [...m.querySelectorAll('input[name=ch]:checked')].map(c => c.value.split(' ')[0].toLowerCase().replace('sirens', 'sirens'));
+      z.sent = true; const t = nowUTC();
+      const on = Object.entries(zones).filter(([, x]) => x.sent), total = on.reduce((s, [, x]) => s + x.people, 0);
+      a.facts[0][1] = on.map(([k]) => k).join(' + '); a.facts[1][1] = fmtN(total);
+      a.timeline.push([t, `Zone ${key} added, ${fmtN(z.people)} people`, true]);
+      $('statEvac').textContent = pad2(+$('statEvac').textContent + 1);
+      const g = KAIJU.find(k => k.id === 'godzilla'); g.public.sub = `${fmtN(total)} people · zones ${on.map(([k]) => k).join(', ')}`; if (selected === 'godzilla') renderRight();
+      closeModal(); renderADetail();
+      toast(`Broadcast sent to Zone ${key}`, `${fmtN(z.people)} people · ${ch.join(', ')} · ${t} UTC`);
+    }
+  });
+}
+
+/* ---------- incoming critical alert ---------- */
+let incomingArmed = false, incomingFired = false, guamEta = 3 * 3600 + 12 * 60 + 40;
+function armIncoming() {
+  if (incomingArmed) return; incomingArmed = true;
+  setTimeout(function wait() { if (current === 'alerts' && $('scrim').hidden) fireIncoming(); else setTimeout(wait, 1500); }, 9000);
+}
+function fireIncoming() {
+  if (incomingFired) return; incomingFired = true;
+  const t = nowUTC();
+  ALERTS.unshift({ id: 'a0', day: 0, time: t, title: 'Escalated to critical', kaiju: 'UNKNOWN-07', kid: 'unknown07', place: 'Near Guam, Mariana Islands', type: 'THREAT', level: 'critical', open: true,
+    facts: [['Position', '13.4°N 144.8°E'], ['Heading', '310° NW'], ['ETA to Guam', '03:12'], ['At risk', '168,000']],
+    timeline: [[t, 'Seismic swarm M7.2 within 30 km of Guam'], [t, 'Threat raised to critical by model GT-4']] });
+  const k = KAIJU.find(x => x.id === 'unknown07');
+  Object.assign(k, { level: 'critical', meta: 'ETA 03:12', loc: 'Near Guam, Mariana Islands', x: 698, y: 416, kicker: 'UNIDENTIFIED · ESCALATED',
+    public: { ok: false, title: 'Public alert pending', sub: 'Guam · 168,000 people' } });
+  Object.assign(k.signals[0], { value: '12 µSv/h · rising', delta: '×40', hot: true });
+  Object.assign(k.signals[1], { value: 'Swarm · M7.2 near Guam', delta: 'M7.2' });
+  k.facts[0][1] = '13.4°N 144.8°E'; lastSig.unknown07 = 0;
+  $('statCritical').textContent = '02';
+  renderList(); renderPins(); apply(); if (selected === 'unknown07') renderRight();
+  renderAlerts();
+  const row = $('aFeed').querySelector('.arow[data-id="a0"]');
+  if (row) row.animate([{ backgroundColor: 'rgba(248,70,30,.32)' }, { backgroundColor: 'transparent' }], { duration: 1200, easing: EASE_OUT });
+  const soundOn = $('sound').getAttribute('aria-pressed') === 'true';
+  const m = openModal(`
+    <div class="modal critical" role="alertdialog" aria-modal="true" aria-labelledby="inTitle" aria-describedby="inBody">
+      <div class="crit-head"><span class="crit-icon">${icon('siren')}</span>
+        <div><p class="t-mono-strong ca">NEW CRITICAL ALERT · ${t} UTC</p><h2 class="t-heading" id="inTitle">UNKNOWN-07 escalated to critical</h2></div></div>
+      <p id="inBody">Seismic swarm M7.2 and radiation ×40 within 30 km of Guam. Heading north west toward the island.</p>
+      <div class="crit-facts">
+        <div class="fact"><span class="t-label">Position</span><span class="t-numeral-m">13.4°N 144.8°E</span></div>
+        <div class="fact"><span class="t-label">Heading</span><span class="t-numeral-m">310° NW</span></div>
+        <div class="fact"><span class="t-label">ETA to Guam</span><span class="t-numeral-m ca" data-guam>${fmt(guamEta)}</span></div>
+        <div class="fact"><span class="t-label">At risk</span><span class="t-numeral-m">168,000</span></div>
+      </div>
+      <div class="row2"><button class="btn out l" data-map>${icon('map-pin', 20)}View on map</button><button class="btn alert l" data-ack data-autofocus>${icon('check', 20)}Acknowledge</button></div>
+      <p class="t-label c2" style="display:flex;gap:8px;align-items:center">${icon('speaker-high', 16)}${soundOn ? 'Alert sound repeats until acknowledged' : 'Alert sound is off'}</p>
+    </div>`, () => { ackIncoming(); });
+  if (!reduce.matches) m.querySelector('.crit-icon').animate([{ transform: 'rotate(0)' }, { transform: 'rotate(-12deg)' }, { transform: 'rotate(10deg)' }, { transform: 'rotate(-6deg)' }, { transform: 'rotate(0)' }], { duration: 600, delay: 200, easing: 'ease-in-out' });
+  m.addEventListener('click', e => {
+    if (e.target.closest('[data-ack]')) ackIncoming();
+    if (e.target.closest('[data-map]')) { ackIncoming(); location.hash = '#overview'; setTimeout(() => select('unknown07', true), 60); }
+  });
+}
+function ackIncoming() { const a = ALERTS.find(x => x.id === 'a0'); if (a) ack(a); closeModal(); renderAlerts(); }
+setInterval(() => { if (guamEta > 0) guamEta--; document.querySelectorAll('[data-guam]').forEach(e => e.textContent = fmt(guamEta)); document.querySelectorAll('[data-eta-short]').forEach(e => e.textContent = fmt(etaSeconds).slice(0, 5)); }, 1000);
+
+/* ---------- history data ---------- */
+const MON = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+const EVENTS = [
+  { id: 'e1', year: 2026, date: '14–16 Aug', range: '14–16 AUG 2026', kaiju: 'GODZILLA', place: 'Tokyo Bay, Japan', sub: 'Tokyo Bay · landfall at Yokosuka, Japan', level: 'critical', evac: 1840000, lead: 380, landfall: true, hours: 58, structures: 312, zone: 14,
+    replay: { start: Date.UTC(2026, 7, 14, 3, 10), track: [[0, 142, 29], [18.5, 141.6, 31.2], [32.2, 141, 33.2], [48.2, 140.2, 34.6], [54.5, 139.67, 35.28], [57.8, 140.3, 34.9]],
+      events: [[0, 'First seismic signal, Izu-Ogasawara Trench'], [18.5, 'Radiation spike ×18 at buoy TKB-03'], [32.2, 'Track turns north toward Tokyo Bay'], [48.2, 'Evacuation order, Tokyo Bay Zone A'], [54.5, 'Landfall at Yokosuka'], [57.8, 'Returned to sea, threat closed']], marks: [[0, 'FIRST SIGNAL'], [54.5, 'LANDFALL']] } },
+  { id: 'e2', year: 2026, date: '02–03 Jul', range: '02–03 JUL 2026', kaiju: 'KING GHIDORAH', place: 'Anchorage, United States', sub: 'Gulf of Alaska · landfall at Anchorage', level: 'critical', evac: 296000, lead: 250, landfall: true, hours: 31, structures: 88, zone: 6,
+    replay: { start: Date.UTC(2026, 6, 2, 0, 0), track: [[0, -172, 49], [12, -162, 54], [22.2, -153, 59.5], [26.4, -149.9, 61.2], [31, -146, 62.6]],
+      events: [[0, 'Storm cell forms south of the Aleutians'], [12, 'Wind 290 km/h at station SNP'], [22.2, 'Evacuation order, Anchorage'], [26.4, 'Landfall at Anchorage'], [31, 'Moved inland, threat closed']], marks: [[0, 'FIRST SIGNAL'], [26.4, 'LANDFALL']] } },
+  { id: 'e3', year: 2026, date: '19 Jun', range: '19 JUN 2026', kaiju: 'RODAN', place: 'Kagoshima, Japan', sub: 'Kyushu · landfall at Sakurajima', level: 'elevated', evac: 82000, lead: 460, landfall: true, hours: 14, structures: 21, zone: 2,
+    replay: { start: Date.UTC(2026, 5, 19, 2, 0), track: [[0, 131.1, 32.9], [4, 130.9, 32.2], [9.67, 130.66, 31.58], [14, 130.6, 31.4]],
+      events: [[0, 'Thermal surge at Mount Aso'], [1, 'Flight detected heading south'], [2, 'Evacuation order, Kagoshima'], [9.67, 'Landfall at Sakurajima'], [14, 'Returned to dormancy, threat closed']], marks: [[0, 'FIRST SIGNAL'], [9.67, 'LANDFALL']] } },
+  { id: 'e4', year: 2026, date: '28–30 Apr', range: '28–30 APR 2026', kaiju: 'MOTHRA', place: 'Suva, Fiji', sub: 'Fiji · closest approach 22 km off Suva', level: 'elevated', evac: 41000, lead: null, landfall: false, hours: 46, structures: 0, zone: 0,
+    replay: { start: Date.UTC(2026, 3, 28, 6, 0), track: [[0, -168, -13], [14, -172, -15], [30, -176.5, -17], [38, 178.8, -18.3], [46, 178.6, -19.6]],
+      events: [[0, 'Bioluminescent field detected'], [14, 'Course set toward Fiji'], [30, 'Precautionary evacuation, Suva coast'], [38, 'Closest approach, 22 km off Suva'], [46, 'Turned south, threat closed']], marks: [[0, 'FIRST SIGNAL'], [38, 'CLOSEST']] } },
+  { id: 'e5', year: 2026, date: '09 Mar', range: '09 MAR 2026', kaiju: 'UNKNOWN-04', place: 'Kermadec Trench, Pacific', sub: 'Kermadec Trench · stayed at depth', level: 'monitoring', evac: 0, lead: null, landfall: false, hours: 9, structures: 0, zone: 0,
+    replay: { start: Date.UTC(2026, 2, 9, 4, 0), track: [[0, -176.8, -29.5], [4, -176.3, -31], [9, -176.6, -32.5]],
+      events: [[0, 'Sonar contact, Kermadec Trench'], [4, 'Classified as Benthic Titan'], [9, 'Signal lost at 9,000 m, closed']], marks: [[0, 'FIRST SIGNAL']] } },
+  { id: 'e6', year: 2026, date: '21–22 Jan', range: '21–22 JAN 2026', kaiju: 'GODZILLA', place: 'Manila Bay, Philippines', sub: 'Luzon · landfall at Manila Bay', level: 'critical', evac: 1120000, lead: 278, landfall: true, hours: 30, structures: 204, zone: 9,
+    replay: { start: Date.UTC(2026, 0, 21, 8, 0), track: [[0, 129, 13.4], [9, 126, 14.2], [19.4, 123.2, 14.5], [24, 120.98, 14.6], [30, 121.6, 13.6]],
+      events: [[0, 'Sonar contact east of Samar'], [9, 'Radiation spike ×16 at buoy MNL-07'], [19.4, 'Evacuation order, Manila Bay Zone A'], [24, 'Landfall at Manila Bay'], [30, 'Returned to sea, threat closed']], marks: [[0, 'FIRST SIGNAL'], [24, 'LANDFALL']] } },
+  ...[['18–19 Dec', 'GODZILLA', 'Busan, South Korea', 'critical', 910000, 312, true, 40], ['03 Nov', 'RODAN', 'Mount Aso, Japan', 'monitoring', 0, null, false, 6], ['22–24 Sep', 'KING GHIDORAH', 'Guam', 'critical', 168000, 175, true, 44],
+    ['30 Aug', 'MOTHRA', 'Tahiti', 'elevated', 12000, null, false, 18], ['14–15 Jul', 'GODZILLA', 'Hong Kong', 'critical', 1310000, 268, true, 28], ['02 Jun', 'UNKNOWN-03', 'Java Trench', 'monitoring', 0, null, false, 7],
+    ['19 Apr', 'RODAN', 'Taipei, Taiwan', 'elevated', 220000, 420, true, 16], ['07–08 Feb', 'GODZILLA', 'Darwin, Australia', 'elevated', 64000, 510, true, 26], ['11 Jan', 'MOTHRA', 'Infant Island', 'monitoring', 0, null, false, 5]
+  ].map((e, i) => ({ id: 'p5' + i, year: 2025, date: e[0], range: e[0].toUpperCase() + ' 2025', kaiju: e[1], place: e[2], sub: e[2], level: e[3], evac: e[4], lead: e[5], landfall: e[6], hours: e[7], structures: e[6] ? Math.round(e[4] / 6000) : 0, zone: e[6] ? Math.max(1, Math.round(e[4] / 130000)) : 0 })),
+  ...[['25–26 Nov', 'GODZILLA', 'Osaka Bay, Japan', 'critical', 1620000, 290, true, 36], ['09 Oct', 'KING GHIDORAH', 'Kamchatka, Russia', 'elevated', 18000, 600, true, 20], ['16 Aug', 'RODAN', 'Sakurajima, Japan', 'elevated', 47000, 455, true, 12],
+    ['01 Jul', 'UNKNOWN-02', 'Tonga Trench', 'monitoring', 0, null, false, 8], ['12–13 May', 'GODZILLA', 'Manila Bay, Philippines', 'critical', 980000, 230, true, 30], ['27 Mar', 'MOTHRA', 'Samoa', 'monitoring', 0, null, false, 9], ['05 Feb', 'UNKNOWN-01', 'Bering Sea', 'monitoring', 0, null, false, 6]
+  ].map((e, i) => ({ id: 'p4' + i, year: 2024, date: e[0], range: e[0].toUpperCase() + ' 2024', kaiju: e[1], place: e[2], sub: e[2], level: e[3], evac: e[4], lead: e[5], landfall: e[6], hours: e[7], structures: e[6] ? Math.round(e[4] / 6000) : 0, zone: e[6] ? Math.max(1, Math.round(e[4] / 130000)) : 0 }))
+];
+const hOn = { year: new Set([2026]), level: new Set(['critical', 'elevated', 'monitoring']) };
+let hSel = null;
+const fmtEvac = n => n >= 1e6 ? (n / 1e6).toFixed(2) + ' M' : n >= 1e3 ? Math.round(n / 1e3) + ' K' : '0';
+const fmtLead = m => m == null ? '—' : `${pad2(Math.floor(m / 60))}:${pad2(Math.round(m % 60))}`;
+const hVisible = () => EVENTS.filter(e => hOn.year.has(e.year) && hOn.level.has(e.level));
+function renderHFilters() {
+  const inYears = EVENTS.filter(e => hOn.year.has(e.year));
+  $('hFilters').innerHTML = `
+    <div class="group"><p class="t-label c2">Year</p>${[2026, 2025, 2024].map(y => `<label class="check"><input type="checkbox" data-g="year" value="${y}" ${hOn.year.has(y) ? 'checked' : ''}><span class="name">${y}</span><span class="t-mono c2">${pad2(EVENTS.filter(e => e.year === y).length)}</span></label>`).join('')}</div>
+    <div class="group"><p class="t-label c2">Peak level</p>${[['critical', 'Critical'], ['elevated', 'Elevated'], ['monitoring', 'Monitoring']].map(([v, l]) => `<label class="check"><input type="checkbox" data-g="level" value="${v}" ${hOn.level.has(v) ? 'checked' : ''}><span class="name">${l}</span><span class="t-mono c2">${pad2(inYears.filter(e => e.level === v).length)}</span></label>`).join('')}</div>`;
+}
+function renderHList() {
+  const list = hVisible(), lands = list.filter(e => e.landfall);
+  const years = [...hOn.year].sort((a, b) => b - a);
+  $('hCount').textContent = `${years.length ? years.join(', ') : 'No year'} · ${pad2(list.length)} events`;
+  $('hStats').innerHTML = [['Evacuated', fmtEvac(list.reduce((s, e) => s + e.evac, 0))], ['Casualties', '0'], ['Avg lead time', lands.length ? fmtLead(lands.reduce((s, e) => s + e.lead, 0) / lands.length) : '—'], ['Landfalls', pad2(lands.length)]]
+    .map(([l, v]) => `<div class="fact"><span class="t-label">${l}</span><span class="t-numeral-m">${v}</span></div>`).join('');
+  $('hList').innerHTML = list.length ? list.map(e => `
+    <button class="hrow" data-id="${e.id}" aria-current="${e.id === hSel}">
+      <span class="t-mono c2">${e.date}${e.year !== 2026 ? ' ' + String(e.year).slice(2) : ''}</span>
+      <span class="t-numeral-m">${e.kaiju}</span>
+      <span>${e.place}</span>
+      <span><span class="tag ${e.level}">${LV[e.level]}</span></span>
+      <span class="t-mono num">${fmtEvac(e.evac)}</span>
+      <span class="c2">${icon('caret-right', 20)}</span>
+    </button>`).join('') : '<p class="empty">No events match these filters.</p>';
+}
+function curve(e) {
+  const peak = e.replay ? e.replay.marks[e.replay.marks.length - 1][0] / e.hours : 0.6, top = { critical: 64, elevated: 44, monitoring: 20 }[e.level];
+  return Array.from({ length: 24 }, (_, i) => { const t = i / 23; return Math.max(4, Math.round((6 + (top - 6) * Math.exp(-Math.pow((t - peak) / 0.22, 2))) / 2) * 2); });
+}
+function renderHDetail() {
+  const e = EVENTS.find(x => x.id === hSel), d = $('hDetail'), v = $('view-history');
+  if (!e) { d.hidden = true; v.classList.remove('has-detail'); return; }
+  d.hidden = false; v.classList.add('has-detail');
+  const bars = curve(e), hotMin = e.level === 'monitoring' ? 999 : 40;
+  const days = e.replay ? [0, 0.5, 1].map(f => { const dt = new Date(e.replay.start + f * e.hours * 3600e3); return `${pad2(dt.getUTCDate())} ${MON[dt.getUTCMonth()]}`; }) : ['Start', '', 'End'];
+  d.innerHTML = `
+    <div class="card-head"><div><p class="t-mono c2">EVENT · ${e.range}</p><h2 class="t-numeral-l">${e.kaiju}</h2><p class="c2">${e.sub}</p></div>
+      <button class="icon-btn" data-close aria-label="Close event detail">${icon('x')}</button></div>
+    <div class="status-line"><span class="tag ${e.level}">${LV[e.level]}</span><span class="t-mono-strong c2">CLOSED · ${e.hours} h</span></div>
+    <div class="facts" style="margin-top:16px">${[['Lead time', fmtLead(e.lead)], ['Duration', e.hours + ' h'], ['Evacuated', fmtEvac(e.evac)], ['Casualties', '0'], ['Structures hit', String(e.structures)], ['Damage zone', e.zone + ' km²']]
+      .map(([l, v]) => `<div class="fact"><span class="t-label">${l}</span><span class="t-numeral-m">${v}</span></div>`).join('')}</div>
+    <p class="t-mono c2" style="margin-top:8px">Lead time runs from the evacuation order to landfall.</p>
+    <div class="block" style="margin-top:16px;gap:12px"><p class="t-label c2">Threat level over time</p>
+      <div class="hchart">${bars.map(h => `<i class="${h >= hotMin ? 'hot' : ''}" style="height:${h}px"></i>`).join('')}</div>
+      <div class="kv t-mono c2">${days.map(x => `<span>${x}</span>`).join('')}</div></div>
+    <div class="stack">${e.replay ? `<button class="btn out l" data-replay>${icon('play', 20)}Replay event on map</button>` : `<p class="t-label c2">Track replays are kept for 2026 events.</p><button class="btn out l" disabled>${icon('play', 20)}Replay unavailable</button>`}</div>`;
+  if (!reduce.matches) d.querySelectorAll('.hchart i').forEach((b, i) => b.animate([{ transform: 'scaleY(0)' }, { transform: 'scaleY(1)' }], { duration: 240, delay: 60 + i * 12, easing: EASE_OUT, fill: 'backwards' }));
+}
+$('hFilters').addEventListener('change', e => { const c = e.target; if (!c.dataset.g) return; const v = c.dataset.g === 'year' ? +c.value : c.value; c.checked ? hOn[c.dataset.g].add(v) : hOn[c.dataset.g].delete(v); renderHFilters(); renderHList(); });
+$('hList').addEventListener('click', e => { const r = e.target.closest('.hrow'); if (!r) return; const opening = hSel === null; hSel = r.dataset.id; renderHList(); renderHDetail(); if (opening) fadeIn($('hDetail'), 8); });
+$('hDetail').addEventListener('click', e => {
+  if (e.target.closest('[data-close]')) { hSel = null; renderHList(); renderHDetail(); }
+  if (e.target.closest('[data-replay]')) startReplay(EVENTS.find(x => x.id === hSel));
+});
+
+/* ---------- replay on the map ---------- */
+let R = null;
+const lonFix = lon => lon < -30 ? lon + 360 : lon;
+const mapPt = (lon, lat) => proj(lonFix(lon), lat);
+function trackAt(tr, h) {
+  let i = 0; while (i < tr.length - 2 && h > tr[i + 1][0]) i++;
+  const a = tr[i], b = tr[i + 1], k = Math.min(1, Math.max(0, (h - a[0]) / (b[0] - a[0] || 1)));
+  const pa = mapPt(a[1], a[2]), pb = mapPt(b[1], b[2]);
+  return { x: pa[0] + (pb[0] - pa[0]) * k, y: pa[1] + (pb[1] - pa[1]) * k, i };
+}
+const rTime = h => { const d = new Date(R.ev.replay.start + h * 3600e3); return `${pad2(d.getUTCDate())} ${MON[d.getUTCMonth()]} ${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}`; };
+function drawReplay() {
+  if (!R) return;
+  const rp = R.ev.replay, w = span(), W = map.clientWidth, head = trackAt(rp.track, R.h);
+  let off = view.tx; const hx = head.x * view.s + off; off += Math.round((W / 2 - hx) / w) * w;
+  const S = ([x, y]) => [Math.round(x * view.s + off), Math.round(y * view.s + view.ty)];
+  const pts = rp.track.map(p => S(mapPt(p[1], p[2]))), hp = S([head.x, head.y]);
+  const past = pts.slice(0, head.i + 1).concat([hp]), fut = [hp].concat(pts.slice(head.i + 1));
+  const line = a => 'M' + a.map(p => p.join(' ')).join('L');
+  const marks = rp.marks.map(([h, t]) => { const p = trackAt(rp.track, h), [x, y] = S([p.x, p.y]), done = R.h >= h;
+    return `<circle cx="${x}" cy="${y}" r="${t === 'FIRST SIGNAL' ? 5 : 14}" fill="${t === 'FIRST SIGNAL' ? '#F8461E' : 'rgba(248,70,30,.12)'}" stroke="${t === 'FIRST SIGNAL' ? 'none' : '#FFFFFF'}" stroke-width="2" ${t === 'FIRST SIGNAL' ? '' : 'stroke-dasharray="4 4"'} opacity="${done || t === 'FIRST SIGNAL' ? 1 : .6}"/>
+      <text x="${x - 20}" y="${y + 4}" text-anchor="end" font-family="Fira Mono, monospace" font-size="12" font-weight="500" fill="#FFFFFF" stroke="#0A0C0D" stroke-width="4" paint-order="stroke" stroke-linejoin="round">${t}<tspan fill="#C5C5C5" font-weight="400" dx="8">${rTime(h)}</tspan></text>`; }).join('');
+  $('rOverlay').innerHTML = `<path d="${line(fut)}" fill="none" stroke="#C5C5C5" stroke-width="2" stroke-dasharray="4 6" stroke-linecap="round"/><path d="${line(past)}" fill="none" stroke="#F8461E" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>${marks}`;
+  $('rPin').style.transform = `translate(${hp[0]}px, ${hp[1]}px)`;
+}
+function syncReplayUI() {
+  const rp = R.ev.replay, f = R.h / R.ev.hours;
+  $('rClock').textContent = rTime(R.h) + ' UTC';
+  $('rHour').textContent = `Hour ${Math.floor(R.h)} of ${R.ev.hours}`;
+  $('rPinTime').textContent = rTime(R.h);
+  $('rFill').style.width = (f * 100) + '%';
+  if (document.activeElement !== $('rScrub')) $('rScrub').value = Math.round(f * 1000);
+  $('rScrub').setAttribute('aria-valuetext', rTime(R.h) + ' UTC');
+  const now = rp.events.reduce((n, [h], i) => h <= R.h + 1e-6 ? i : n, 0);
+  if (now !== R.now) { R.now = now; $('rLog').querySelectorAll('.ev').forEach((el, i) => { el.className = 'ev ' + (i < now ? 'past' : i === now ? 'now' : 'future'); }); }
+  drawReplay();
+}
+function startReplay(ev) {
+  R = { ev, h: 0, playing: false, speed: 4, now: -1, raf: 0 };
+  const rp = ev.replay;
+  $('rHead').innerHTML = `<div class="panel-head"><div><p class="t-mono c2">REPLAY · ${ev.range}</p><h2 class="t-numeral-l">${ev.kaiju}</h2><p class="c2">${ev.place}</p></div><span class="tag ${ev.level}">${LV[ev.level]}</span></div>
+    <button class="btn out" id="rExit" style="width:100%">${icon('x', 20)}Exit replay</button>`;
+  $('rLog').innerHTML = rp.events.map(([h, t]) => `<button class="ev future" data-h="${h}"><span class="glyph monitoring"></span><span><span class="t-mono c2" style="display:block">${rTime(h)}</span>${t}</span></button>`).join('');
+  $('rTicks').innerHTML = rp.events.map(([h]) => `<span class="tick" style="left:${h / ev.hours * 100}%"></span>`).join('');
+  $('rEnd').textContent = rTime(ev.hours);
+  $('rPinName').textContent = ev.kaiju; $('rSpeed').textContent = 'Speed 4×';
+  $('rExit').onclick = exitReplay;
+  onPlace = drawReplay;
+  location.hash = '#history/replay';
+  const pts = rp.track.map(p => mapPt(p[1], p[2])), xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+  const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+  const bw = Math.max(8, Math.max(...xs) - Math.min(...xs)), bh = Math.max(8, Math.max(...ys) - Math.min(...ys));
+  const s = Math.min(minScale() * 10, Math.max(minScale() * 1.5, Math.min(map.clientWidth * 0.4 / bw, map.clientHeight * 0.4 / bh)));
+  syncReplayUI();
+  flyTo(cx, cy, s, 900);
+  setTimeout(() => { if (R && R.ev === ev) play(); }, reduce.matches ? 0 : 900);
+}
+function play() {
+  if (!R) return; if (R.h >= R.ev.hours) R.h = 0;
+  R.playing = true; $('rPlay').innerHTML = icon('pause'); $('rPlay').setAttribute('aria-label', 'Pause');
+  let last = performance.now();
+  const step = now => { if (!R || !R.playing) return; R.h = Math.min(R.ev.hours, R.h + (now - last) / 1000 * R.speed); last = now; syncReplayUI(); if (R.h >= R.ev.hours) pause(); else R.raf = requestAnimationFrame(step); };
+  R.raf = requestAnimationFrame(step);
+}
+function pause() { if (!R) return; R.playing = false; cancelAnimationFrame(R.raf); $('rPlay').innerHTML = icon('play'); $('rPlay').setAttribute('aria-label', 'Play'); }
+function stopReplay() { if (!R) return; pause(); R = null; onPlace = null; $('rOverlay').innerHTML = ''; }
+function exitReplay() { stopReplay(); location.hash = '#history'; }
+$('rPlay').onclick = () => R && (R.playing ? pause() : play());
+$('rSpeed').onclick = () => { if (!R) return; R.speed = { 1: 4, 4: 16, 16: 1 }[R.speed]; $('rSpeed').textContent = `Speed ${R.speed}×`; };
+$('rScrub').addEventListener('input', e => { if (!R) return; R.h = +e.target.value / 1000 * R.ev.hours; syncReplayUI(); });
+$('rLog').addEventListener('click', e => { const b = e.target.closest('.ev'); if (!b || !R) return; R.h = +b.dataset.h; syncReplayUI(); });
+
+renderAlerts(); renderHFilters(); renderHList(); renderHDetail();
+route();
+
 </script>
 </body>
 </html>

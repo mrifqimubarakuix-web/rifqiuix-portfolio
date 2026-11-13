@@ -13,6 +13,7 @@
   --blue: #87a6e5;
   --orange: #ffd693;
   --pale-yellow: #fdffcc;
+  --accent: var(--pale-yellow);   /* the one accent: link hovers, focus rings, selection */
   --green: #3ddc84;
   --line: rgba(255, 255, 255, 0.14);
   --radius: 14px;
@@ -56,6 +57,13 @@ a {
 }
 
 img { max-width: 100%; height: auto; display: block; }
+
+::selection { background: var(--accent); color: var(--bg); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
 
 .container {
   max-width: var(--container);
@@ -219,7 +227,7 @@ body.menu-open .menu-panel {
 }
 
 .hero-photo {
-  width: clamp(200px, 28vw, 280px);
+  width: clamp(200px, 28vw, 340px);
   flex-shrink: 0;
   filter: drop-shadow(0 35px 45px rgba(0, 0, 0, 0.55));
 }
@@ -493,7 +501,7 @@ body.menu-open .menu-panel {
   text-underline-offset: 3px;
 }
 
-.case-outcome-link:hover { color: var(--pale-yellow); }
+.case-outcome-link:hover { color: var(--accent); }
 
 @media (min-width: 760px) {
   .case-meta {
@@ -609,7 +617,7 @@ body.menu-open .menu-panel {
 
 .article-card:hover {
   transform: translateY(-3px);
-  border-color: rgba(255, 255, 255, 0.35);
+  border-color: rgba(253, 255, 204, 0.45);
 }
 
 .article-card img {
@@ -686,7 +694,7 @@ body.menu-open .menu-panel {
   transition: border-color 0.15s ease;
 }
 
-.pager-back:hover { border-color: rgba(255, 255, 255, 0.4); }
+.pager-back:hover { border-color: rgba(253, 255, 204, 0.45); }
 
 @media (max-width: 560px) {
   .project-pager {
@@ -885,7 +893,7 @@ body.menu-open .menu-panel {
 }
 
 a.beyond-item:hover {
-  border-color: rgba(255, 255, 255, 0.35);
+  border-color: rgba(253, 255, 204, 0.45);
   transform: translateY(-2px);
 }
 
@@ -926,7 +934,7 @@ a.beyond-item:hover {
   text-underline-offset: 3px;
 }
 
-.beyond-link:hover { color: var(--pale-yellow); }
+.beyond-link:hover { color: var(--accent); }
 
 @media (max-width: 640px) {
   .beyond-grid {
@@ -1166,6 +1174,79 @@ a.beyond-item:hover {
   letter-spacing: 0.04em;
 }
 
+.project-card h2 { transition: color 0.15s ease; }
+.project-card img { transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1); }
+
+@media (hover: hover) {
+  .project-card:hover h2 { color: var(--accent); }
+  .project-card:hover img { transform: scale(1.03); }
+}
+
+/* ---------- Home: featured work + more work ---------- */
+
+/* The newest featured project leads as a full-width, side-by-side card. */
+@media (min-width: 700px) {
+  .featured-grid .project-card:first-child {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+    gap: 2.5rem;
+    align-items: center;
+  }
+
+  .featured-grid .project-card:first-child .project-cover { margin-bottom: 0; }
+
+  .featured-grid .project-card:first-child h2 {
+    font-size: var(--fs-xl);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.75rem;
+  }
+}
+
+.featured-grid { padding-bottom: 1.5rem; }
+
+/* Everything else sits in a denser grid with smaller titles. On phones
+   each card becomes a compact row: thumbnail left, text right. */
+.project-grid.more-grid {
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+.more-grid .project-card {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  gap: 0.875rem;
+  align-items: center;
+}
+
+.more-grid .project-card .project-cover { margin-bottom: 0; border-radius: 8px; }
+
+.more-grid .project-card h2 {
+  font-size: var(--fs-sm);
+  line-height: 1.35;
+}
+
+@media (min-width: 560px) {
+  .project-grid.more-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem 1.5rem;
+  }
+
+  .more-grid .project-card { display: block; }
+
+  .more-grid .project-card .project-cover {
+    margin-bottom: 0.75rem;
+    border-radius: var(--radius);
+  }
+
+  .more-grid .project-card h2 { font-size: var(--fs-base); }
+}
+
+@media (min-width: 900px) {
+  .project-grid.more-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
 /* ---------- Gallery ---------- */
 
 .gallery-grid {
@@ -1274,4 +1355,48 @@ body.lightbox-open { overflow: hidden; }
 
 @media (max-width: 560px) {
   .lightbox-hint { display: none; }
+}
+
+/* ---------- Motion ---------- */
+
+/* Cross-fade between pages, and morph a project cover from its card
+   into the case study header (matching view-transition-name is set
+   inline on both). Browsers without support just navigate normally. */
+@view-transition { navigation: auto; }
+
+::view-transition-group(*) {
+  animation-duration: 0.3s;
+  animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* Cards fade and rise as they scroll into view. Pure CSS, tied to the
+   scroll position; uses `translate` so hover `transform`s still work. */
+@keyframes reveal {
+  from { opacity: 0; translate: 0 16px; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+@supports (animation-timeline: view()) {
+  .project-card,
+  .testimonial-card,
+  .beyond-item,
+  .career-item,
+  .gallery img {
+    animation: reveal linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 40%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+
+  .project-card,
+  .testimonial-card,
+  .beyond-item,
+  .career-item,
+  .gallery img { animation: none; }
+
+  .project-card img { transition: none; }
+  .project-card:hover img { transform: none; }
 }

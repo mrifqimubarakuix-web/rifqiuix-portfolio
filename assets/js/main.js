@@ -103,21 +103,23 @@ document.addEventListener("DOMContentLoaded", function () {
     summary.textContent = years + "+ years across " + companyCount + " companies";
   }
 
-  // Selected Work grid: sort cards automatically by data-date (newest
-  // first), so adding a new project is just a matter of giving it a
-  // date — no manual reordering of the markup required.
-  var projectGrid = document.querySelector(".work .project-grid");
-  if (projectGrid) {
-    var projectCards = Array.prototype.slice.call(projectGrid.querySelectorAll(".project-card"));
-    projectCards.sort(function (a, b) {
+  // Selected Work / More Work grids: sort the cards in each grid by
+  // data-date (newest first), so adding a new project is just a matter
+  // of giving it a date — no manual reordering of the markup required.
+  var projectGrids = document.querySelectorAll(".work .project-grid");
+  var projectTotal = 0;
+  projectGrids.forEach(function (grid) {
+    var cards = Array.prototype.slice.call(grid.querySelectorAll(".project-card"));
+    projectTotal += cards.length;
+    cards.sort(function (a, b) {
       return b.getAttribute("data-date").localeCompare(a.getAttribute("data-date"));
     });
-    projectCards.forEach(function (card) { projectGrid.appendChild(card); });
-  }
+    cards.forEach(function (card) { grid.appendChild(card); });
+  });
 
   var statProjectsCount = document.getElementById("stat-projects-count");
-  if (statProjectsCount && projectGrid) {
-    statProjectsCount.textContent = projectGrid.querySelectorAll(".project-card").length;
+  if (statProjectsCount && projectTotal) {
+    statProjectsCount.textContent = projectTotal;
   }
 
   // Image lightbox: click the cover or any gallery image on a project

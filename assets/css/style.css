@@ -1146,6 +1146,7 @@ a.beyond-item:hover {
    shares one 16:10 box, matching the 3200x2000 cover exports so they
    show in full. Older, wider covers (1712x748) are centre-cropped. */
 .project-card .project-cover {
+  position: relative;
   border-radius: var(--radius);
   overflow: hidden;
   margin-bottom: 1rem;
@@ -1179,8 +1180,24 @@ a.beyond-item:hover {
 
 @media (hover: hover) {
   .project-card:hover h2 { color: var(--accent); }
-  .project-card:hover img { transform: scale(1.03); }
+  /* Cards with an intro video play it on hover instead of zooming. */
+  .project-card:not([data-video]):hover img { transform: scale(1.03); }
 }
+
+/* Hover intro video. main.js adds the <video> on first hover only, so
+   nothing is downloaded until someone actually points at the card. */
+.project-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.project-video.is-visible { opacity: 1; }
 
 /* ---------- Home: featured work + more work ---------- */
 
@@ -1206,7 +1223,7 @@ a.beyond-item:hover {
 
 .featured-grid { padding-bottom: 1.5rem; }
 
-/* Everything else sits in a denser grid with smaller titles. On phones
+/* Everything else uses the same two-column grid from 700px. On phones
    each card becomes a compact row: thumbnail left, text right. */
 .project-grid.more-grid {
   grid-template-columns: 1fr;
@@ -1227,24 +1244,23 @@ a.beyond-item:hover {
   line-height: 1.35;
 }
 
-@media (min-width: 560px) {
+@media (min-width: 700px) {
   .project-grid.more-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 2rem 1.5rem;
+    gap: 2.5rem;
   }
 
   .more-grid .project-card { display: block; }
 
   .more-grid .project-card .project-cover {
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
     border-radius: var(--radius);
   }
 
-  .more-grid .project-card h2 { font-size: var(--fs-base); }
-}
-
-@media (min-width: 900px) {
-  .project-grid.more-grid { grid-template-columns: repeat(3, 1fr); }
+  .more-grid .project-card h2 {
+    font-size: var(--fs-lg);
+    line-height: 1.3;
+  }
 }
 
 /* ---------- Gallery ---------- */
@@ -1399,4 +1415,5 @@ body.lightbox-open { overflow: hidden; }
 
   .project-card img { transition: none; }
   .project-card:hover img { transform: none; }
+  .project-video { transition: none; }
 }

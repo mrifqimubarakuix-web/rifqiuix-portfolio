@@ -117,6 +117,53 @@ document.addEventListener("DOMContentLoaded", function () {
     cards.forEach(function (card) { grid.appendChild(card); });
   });
 
+  // Hover intro videos. Give a card data-video="path/to/intro.mp4" and,
+  // on devices with a mouse, the clip plays over the cover while hovered.
+  // The <video> is only created on first hover (nothing downloads before
+  // that), and it is skipped for reduced-motion and data-saver users.
+  // Cards without data-video keep the CSS hover zoom.
+  var canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var saveData = navigator.connection && navigator.connection.saveData;
+  if (canHover && !reduceMotion && !saveData) {
+    document.querySelectorAll(".project-card[data-video]").forEach(function (card) {
+      var cover = card.querySelector(".project-cover");
+      if (!cover) return;
+      var video = null;
+      var hovering = false;
+
+      function show() {
+        if (hovering) video.classList.add("is-visible");
+      }
+
+      card.addEventListener("mouseenter", function () {
+        hovering = true;
+        if (!video) {
+          video = document.createElement("video");
+          video.className = "project-video";
+          video.muted = true;
+          video.loop = true;
+          video.playsInline = true;
+          video.preload = "auto";
+          video.setAttribute("aria-hidden", "true");
+          video.src = card.getAttribute("data-video");
+          video.addEventListener("playing", show);
+          cover.appendChild(video);
+        }
+        var playing = video.play();
+        if (playing && playing.catch) playing.catch(function () {});
+        if (!video.paused && video.readyState > 2) show();
+      });
+
+      card.addEventListener("mouseleave", function () {
+        hovering = false;
+        if (!video) return;
+        video.classList.remove("is-visible");
+        video.pause();
+      });
+    });
+  }
+
   var statProjectsCount = document.getElementById("stat-projects-count");
   if (statProjectsCount && projectTotal) {
     statProjectsCount.textContent = projectTotal;

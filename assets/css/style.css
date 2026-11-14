@@ -399,9 +399,10 @@ body.menu-open .menu-panel {
 /* Any logo file, whatever its own colours, renders as flat white and
    is then dimmed by the opacity above, so the set reads as one system. */
 .client-logo img {
+  height: auto;
   max-height: 40px;
-  max-width: min(160px, 100%);
   width: auto;
+  max-width: min(200px, 100%);
   filter: brightness(0) invert(1);
 }
 

@@ -17,7 +17,7 @@
   --green: #3ddc84;
   --line: rgba(255, 255, 255, 0.14);
   --radius: 14px;
-  --container: 1120px;
+  --container: 1320px;
   --gap: clamp(1rem, 3vw, 2rem);
 
   /* Type scale — six steps, nothing below 12px. Use these tokens
@@ -68,7 +68,7 @@ img { max-width: 100%; height: auto; display: block; }
 .container {
   max-width: var(--container);
   margin: 0 auto;
-  padding: 0 clamp(1.25rem, 4vw, 2.5rem);
+  padding: 0 clamp(1rem, 3vw, 2rem);
 }
 
 /* ---------- Header ---------- */
@@ -474,6 +474,10 @@ body.menu-open .menu-panel {
   flex-direction: column;
   gap: 1.6rem;
 }
+
+/* The wider container would stretch case study paragraphs to ~120
+   characters a line; keep prose at a comfortable reading measure. */
+.case-section p { max-width: 72ch; }
 
 .case-section-label {
   margin: 0 0 0.5rem;
@@ -1198,70 +1202,6 @@ a.beyond-item:hover {
 }
 
 .project-video.is-visible { opacity: 1; }
-
-/* ---------- Home: featured work + more work ---------- */
-
-/* The newest featured project leads as a full-width, side-by-side card. */
-@media (min-width: 700px) {
-  .featured-grid .project-card:first-child {
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
-    gap: 2.5rem;
-    align-items: center;
-  }
-
-  .featured-grid .project-card:first-child .project-cover { margin-bottom: 0; }
-
-  .featured-grid .project-card:first-child h2 {
-    font-size: var(--fs-xl);
-    line-height: 1.2;
-    letter-spacing: -0.01em;
-    margin-bottom: 0.75rem;
-  }
-}
-
-.featured-grid { padding-bottom: 1.5rem; }
-
-/* Everything else uses the same two-column grid from 700px. On phones
-   each card becomes a compact row: thumbnail left, text right. */
-.project-grid.more-grid {
-  grid-template-columns: 1fr;
-  gap: 1.25rem;
-}
-
-.more-grid .project-card {
-  display: grid;
-  grid-template-columns: 7.5rem minmax(0, 1fr);
-  gap: 0.875rem;
-  align-items: center;
-}
-
-.more-grid .project-card .project-cover { margin-bottom: 0; border-radius: 8px; }
-
-.more-grid .project-card h2 {
-  font-size: var(--fs-sm);
-  line-height: 1.35;
-}
-
-@media (min-width: 700px) {
-  .project-grid.more-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2.5rem;
-  }
-
-  .more-grid .project-card { display: block; }
-
-  .more-grid .project-card .project-cover {
-    margin-bottom: 1rem;
-    border-radius: var(--radius);
-  }
-
-  .more-grid .project-card h2 {
-    font-size: var(--fs-lg);
-    line-height: 1.3;
-  }
-}
 
 /* ---------- Gallery ---------- */
 

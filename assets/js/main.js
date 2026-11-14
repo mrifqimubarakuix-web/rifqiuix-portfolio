@@ -117,6 +117,54 @@ document.addEventListener("DOMContentLoaded", function () {
     cards.forEach(function (card) { grid.appendChild(card); });
   });
 
+  // Homepage work grid: show the first 4 cards, then reveal one more row
+  // each time the end of the grid scrolls into view. Cards are only
+  // hidden here (no JS = everything visible), and hidden cards' lazy
+  // images don't download until their row is revealed.
+  var workGrid = document.querySelector(".work .project-grid");
+  if (workGrid && "IntersectionObserver" in window) {
+    var INITIAL_CARDS = 4;
+    var workCards = Array.prototype.slice.call(workGrid.querySelectorAll(".project-card"));
+    if (workCards.length > INITIAL_CARDS) {
+      workCards.slice(INITIAL_CARDS).forEach(function (card) { card.hidden = true; });
+
+      var sentinel = document.createElement("div");
+      sentinel.className = "work-sentinel";
+      sentinel.setAttribute("aria-hidden", "true");
+      workGrid.parentNode.insertBefore(sentinel, workGrid.nextSibling);
+
+      var cardsPerRow = function () {
+        return getComputedStyle(workGrid).gridTemplateColumns.split(" ").length;
+      };
+
+      var sentinelInView = function () {
+        var r = sentinel.getBoundingClientRect();
+        return r.top < window.innerHeight * 0.9 && r.bottom > 0;
+      };
+
+      var revealRow = function () {
+        var stillHidden = workCards.filter(function (card) { return card.hidden; });
+        stillHidden.slice(0, cardsPerRow()).forEach(function (card) {
+          card.hidden = false;
+          card.classList.add("is-revealed");
+        });
+        if (stillHidden.length <= cardsPerRow()) {
+          rowObserver.disconnect();
+          sentinel.remove();
+        } else {
+          // On a tall screen the end of the grid can still be in view
+          // after a row is added; keep filling, one row at a time.
+          setTimeout(function () { if (sentinelInView()) revealRow(); }, 250);
+        }
+      };
+
+      var rowObserver = new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting) revealRow();
+      }, { rootMargin: "0px 0px -10% 0px" });
+      rowObserver.observe(sentinel);
+    }
+  }
+
   // Hover intro videos. Give a card data-video="path/to/intro.mp4" and,
   // on devices with a mouse, the clip plays over the cover while hovered.
   // The <video> is only created on first hover (nothing downloads before

@@ -1145,6 +1145,23 @@ a.beyond-item:hover {
 }
 
 .project-card { display: block; }
+.project-card[hidden] { display: none; }
+
+/* Marks the end of the homepage grid; main.js reveals the next row
+   of cards when this scrolls into view. */
+.work-sentinel { height: 1px; }
+
+.work-all-link {
+  display: inline-block;
+  margin-bottom: 4rem;
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.15s ease;
+}
+
+.work-all-link:hover { color: var(--accent); }
 
 /* Every card cover — real <img> or "Image coming soon" placeholder —
    shares one 16:10 box, matching the 3200x2000 cover exports so they
@@ -1344,10 +1361,17 @@ body.lightbox-open { overflow: hidden; }
   }
 }
 
+/* Browsers without scroll-driven animations still get a short fade
+   when main.js reveals a new row of cards. */
+@supports not (animation-timeline: view()) {
+  .project-card.is-revealed { animation: reveal 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   @view-transition { navigation: none; }
 
   .project-card,
+  .project-card.is-revealed,
   .testimonial-card,
   .beyond-item,
   .career-item,
@@ -1357,3 +1381,5 @@ body.lightbox-open { overflow: hidden; }
   .project-card:hover img { transform: none; }
   .project-video { transition: none; }
 }
+
+.work .project-grid { padding-bottom: 2rem; }

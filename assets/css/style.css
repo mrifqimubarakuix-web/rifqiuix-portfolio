@@ -137,6 +137,7 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 .email-link,
+.wa-link,
 .cv-link {
   display: inline-flex;
   align-items: center;
@@ -148,7 +149,14 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 .email-link svg,
+.wa-link svg,
 .cv-link svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+.email-link,
+.wa-link { transition: color 0.15s ease; }
+
+.email-link:hover,
+.wa-link:hover { color: var(--accent); }
 
 .cv-link {
   color: var(--muted);
@@ -157,9 +165,11 @@ img { max-width: 100%; height: auto; display: block; }
 
 .cv-link:hover { color: var(--fg); }
 
-@media (max-width: 480px) {
-  .email-link, .cv-link { font-size: 0; gap: 0; }
-  .email-link svg, .cv-link svg { width: 20px; height: 20px; }
+/* Three labelled links no longer fit beside the name below ~760px,
+   so they collapse to icons (the text stays for screen readers). */
+@media (max-width: 760px) {
+  .email-link, .wa-link, .cv-link { font-size: 0; gap: 0; }
+  .email-link svg, .wa-link svg, .cv-link svg { width: 20px; height: 20px; }
 }
 
 /* ---------- Hamburger menu overlay ---------- */

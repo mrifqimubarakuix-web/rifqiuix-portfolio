@@ -117,6 +117,34 @@ document.addEventListener("DOMContentLoaded", function () {
     cards.forEach(function (card) { grid.appendChild(card); });
   });
 
+  // Project cards fade up as they enter the viewport, staggered by
+  // column. Skipped for reduced-motion users and browsers without
+  // IntersectionObserver (cards then simply show).
+  var fadeUpCards = function () {};
+  if ("IntersectionObserver" in window &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    var fadeObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.setAttribute("data-visible", "");
+        fadeObserver.unobserve(entry.target);
+      });
+    }, { threshold: 0.1 });
+
+    fadeUpCards = function (cards, perRow) {
+      cards.forEach(function (card, i) {
+        card.style.setProperty("--fade-up-delay", ((i % perRow) + 1) * 100 + "ms");
+        card.setAttribute("data-armed", "");
+        fadeObserver.observe(card);
+      });
+    };
+
+    document.querySelectorAll(".project-grid").forEach(function (grid) {
+      var perRow = getComputedStyle(grid).gridTemplateColumns.split(" ").length;
+      fadeUpCards(Array.prototype.slice.call(grid.querySelectorAll(".project-card")), perRow);
+    });
+  }
+
   // Homepage work grid: show the first 4 cards, then reveal one more row
   // each time the end of the grid scrolls into view. Cards are only
   // hidden here (no JS = everything visible), and hidden cards' lazy
@@ -146,7 +174,6 @@ document.addEventListener("DOMContentLoaded", function () {
         var stillHidden = workCards.filter(function (card) { return card.hidden; });
         stillHidden.slice(0, cardsPerRow()).forEach(function (card) {
           card.hidden = false;
-          card.classList.add("is-revealed");
         });
         if (stillHidden.length <= cardsPerRow()) {
           rowObserver.disconnect();

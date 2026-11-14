@@ -1350,7 +1350,6 @@ body.lightbox-open { overflow: hidden; }
 }
 
 @supports (animation-timeline: view()) {
-  .project-card,
   .testimonial-card,
   .beyond-item,
   .career-item,
@@ -1361,17 +1360,27 @@ body.lightbox-open { overflow: hidden; }
   }
 }
 
-/* Browsers without scroll-driven animations still get a short fade
-   when main.js reveals a new row of cards. */
-@supports not (animation-timeline: view()) {
-  .project-card.is-revealed { animation: reveal 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+/* Project cards fade up once as they enter the viewport, staggered by
+   column (100ms, 200ms) so each row lands left to right. main.js sets
+   data-armed (start hidden), --fade-up-delay, then data-visible.
+   Timing follows the plugandplaydesign.co.uk work grid: 0.3s,
+   ease-out, 10px rise, 0.2s base delay. */
+.project-card[data-armed] {
+  opacity: 0;
+  translate: 0 10px;
+}
+
+.project-card[data-armed][data-visible] {
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity 0.3s cubic-bezier(0, 0, 0.58, 1) calc(0.2s + var(--fade-up-delay, 0s)),
+    translate 0.3s cubic-bezier(0, 0, 0.58, 1) calc(0.2s + var(--fade-up-delay, 0s));
 }
 
 @media (prefers-reduced-motion: reduce) {
   @view-transition { navigation: none; }
 
-  .project-card,
-  .project-card.is-revealed,
   .testimonial-card,
   .beyond-item,
   .career-item,

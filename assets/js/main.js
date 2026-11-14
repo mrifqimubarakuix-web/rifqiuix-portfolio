@@ -103,21 +103,145 @@ document.addEventListener("DOMContentLoaded", function () {
     summary.textContent = years + "+ years across " + companyCount + " companies";
   }
 
-  // Selected Work grid: sort cards automatically by data-date (newest
-  // first), so adding a new project is just a matter of giving it a
-  // date — no manual reordering of the markup required.
-  var projectGrid = document.querySelector(".work .project-grid");
-  if (projectGrid) {
-    var projectCards = Array.prototype.slice.call(projectGrid.querySelectorAll(".project-card"));
-    projectCards.sort(function (a, b) {
+  // Selected Work / More Work grids: sort the cards in each grid by
+  // data-date (newest first), so adding a new project is just a matter
+  // of giving it a date — no manual reordering of the markup required.
+  var projectGrids = document.querySelectorAll(".work .project-grid");
+  var projectTotal = 0;
+  projectGrids.forEach(function (grid) {
+    var cards = Array.prototype.slice.call(grid.querySelectorAll(".project-card"));
+    projectTotal += cards.length;
+    cards.sort(function (a, b) {
       return b.getAttribute("data-date").localeCompare(a.getAttribute("data-date"));
     });
-    projectCards.forEach(function (card) { projectGrid.appendChild(card); });
+    cards.forEach(function (card) { grid.appendChild(card); });
+  });
+
+  // Project cards fade up as they enter the viewport, staggered by
+  // column. Skipped for reduced-motion users and browsers without
+  // IntersectionObserver (cards then simply show).
+  var fadeUpCards = function () {};
+  if ("IntersectionObserver" in window &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    var fadeObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.setAttribute("data-visible", "");
+        fadeObserver.unobserve(entry.target);
+      });
+    }, { threshold: 0.1 });
+
+    fadeUpCards = function (cards, perRow) {
+      cards.forEach(function (card, i) {
+        card.style.setProperty("--fade-up-delay", ((i % perRow) + 1) * 100 + "ms");
+        card.setAttribute("data-armed", "");
+        fadeObserver.observe(card);
+      });
+    };
+
+    document.querySelectorAll(".project-grid").forEach(function (grid) {
+      var perRow = getComputedStyle(grid).gridTemplateColumns.split(" ").length;
+      fadeUpCards(Array.prototype.slice.call(grid.querySelectorAll(".project-card")), perRow);
+    });
+  }
+
+  // Homepage work grid: show the first 4 cards, then reveal one more row
+  // each time the end of the grid scrolls into view. Cards are only
+  // hidden here (no JS = everything visible), and hidden cards' lazy
+  // images don't download until their row is revealed.
+  var workGrid = document.querySelector(".work .project-grid");
+  if (workGrid && "IntersectionObserver" in window) {
+    var INITIAL_CARDS = 4;
+    var workCards = Array.prototype.slice.call(workGrid.querySelectorAll(".project-card"));
+    if (workCards.length > INITIAL_CARDS) {
+      workCards.slice(INITIAL_CARDS).forEach(function (card) { card.hidden = true; });
+
+      var sentinel = document.createElement("div");
+      sentinel.className = "work-sentinel";
+      sentinel.setAttribute("aria-hidden", "true");
+      workGrid.parentNode.insertBefore(sentinel, workGrid.nextSibling);
+
+      var cardsPerRow = function () {
+        return getComputedStyle(workGrid).gridTemplateColumns.split(" ").length;
+      };
+
+      var sentinelInView = function () {
+        var r = sentinel.getBoundingClientRect();
+        return r.top < window.innerHeight * 0.9 && r.bottom > 0;
+      };
+
+      var revealRow = function () {
+        var stillHidden = workCards.filter(function (card) { return card.hidden; });
+        stillHidden.slice(0, cardsPerRow()).forEach(function (card) {
+          card.hidden = false;
+        });
+        if (stillHidden.length <= cardsPerRow()) {
+          rowObserver.disconnect();
+          sentinel.remove();
+        } else {
+          // On a tall screen the end of the grid can still be in view
+          // after a row is added; keep filling, one row at a time.
+          setTimeout(function () { if (sentinelInView()) revealRow(); }, 250);
+        }
+      };
+
+      var rowObserver = new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting) revealRow();
+      }, { rootMargin: "0px 0px -10% 0px" });
+      rowObserver.observe(sentinel);
+    }
+  }
+
+  // Hover intro videos. Give a card data-video="path/to/intro.mp4" and,
+  // on devices with a mouse, the clip plays over the cover while hovered.
+  // The <video> is only created on first hover (nothing downloads before
+  // that), and it is skipped for reduced-motion and data-saver users.
+  // Cards without data-video keep the CSS hover zoom.
+  var canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var saveData = navigator.connection && navigator.connection.saveData;
+  if (canHover && !reduceMotion && !saveData) {
+    document.querySelectorAll(".project-card[data-video]").forEach(function (card) {
+      var cover = card.querySelector(".project-cover");
+      if (!cover) return;
+      var video = null;
+      var hovering = false;
+
+      function show() {
+        if (hovering) video.classList.add("is-visible");
+      }
+
+      card.addEventListener("mouseenter", function () {
+        hovering = true;
+        if (!video) {
+          video = document.createElement("video");
+          video.className = "project-video";
+          video.muted = true;
+          video.loop = true;
+          video.playsInline = true;
+          video.preload = "auto";
+          video.setAttribute("aria-hidden", "true");
+          video.src = card.getAttribute("data-video");
+          video.addEventListener("playing", show);
+          cover.appendChild(video);
+        }
+        var playing = video.play();
+        if (playing && playing.catch) playing.catch(function () {});
+        if (!video.paused && video.readyState > 2) show();
+      });
+
+      card.addEventListener("mouseleave", function () {
+        hovering = false;
+        if (!video) return;
+        video.classList.remove("is-visible");
+        video.pause();
+      });
+    });
   }
 
   var statProjectsCount = document.getElementById("stat-projects-count");
-  if (statProjectsCount && projectGrid) {
-    statProjectsCount.textContent = projectGrid.querySelectorAll(".project-card").length;
+  if (statProjectsCount && projectTotal) {
+    statProjectsCount.textContent = projectTotal;
   }
 
   // Image lightbox: click the cover or any gallery image on a project

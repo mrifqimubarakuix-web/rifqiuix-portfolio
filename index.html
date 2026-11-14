@@ -79,29 +79,24 @@
         <div class="stat-label">Across</div>
       </div>
     </section>
-    <!-- ARCHIVED: "Collaborated With" logo carousel — on hold until real
-         client logos are ready. Styles still live in style.css
-         (.logo-carousel / .logo-track / .logo-item etc). To bring it
-         back, uncomment this block and swap the placeholder LOGO spans
-         for <img> tags.
-    <section class="logo-carousel">
-      <p class="logo-carousel-label">Collaborated With</p>
-      <div class="logo-track">
-        <div class="logo-track-inner">
-          <span class="logo-item">LOGO</span>
-          <span class="logo-item">LOGO</span>
-          <span class="logo-item">LOGO</span>
-          <span class="logo-item">LOGO</span>
-          <span class="logo-item">LOGO</span>
-          <span class="logo-item" aria-hidden="true">LOGO</span>
-          <span class="logo-item" aria-hidden="true">LOGO</span>
-          <span class="logo-item" aria-hidden="true">LOGO</span>
-          <span class="logo-item" aria-hidden="true">LOGO</span>
-          <span class="logo-item" aria-hidden="true">LOGO</span>
-        </div>
-      </div>
+    <!-- Client logos. Each item is a text placeholder until the real
+         logo is ready. To swap one in, save it as a single-colour SVG in
+         assets/img/logos/ and replace the <span> with:
+         <img src="assets/img/logos/NAME.svg" alt="Client name" width="W" height="H" loading="lazy">
+         The CSS renders every logo in the same grey, whatever its colour. -->
+    <section class="client-logos container" aria-labelledby="client-logos-label">
+      <p class="client-logos-label" id="client-logos-label">Companies I've designed for</p>
+      <ul class="client-logo-grid">
+        <li class="client-logo"><span>Toyota Kalla</span></li>
+        <li class="client-logo"><span>PLN</span></li>
+        <li class="client-logo"><span>Mitra Visindo Teknologi</span></li>
+        <li class="client-logo"><span>Lucy Teknologi</span></li>
+        <li class="client-logo"><span>Monza</span></li>
+        <li class="client-logo"><span>Nautilus</span></li>
+        <li class="client-logo"><span>Zivana Montessori</span></li>
+        <li class="client-logo"><span>Aistech</span></li>
+      </ul>
     </section>
-    -->
     <section class="work container">
       <h2 class="page-heading">Selected Work</h2>
       <div class="project-grid featured-grid">

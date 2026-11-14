@@ -351,68 +351,67 @@ body.menu-open .menu-panel {
   .stat-number { font-size: var(--fs-base); }
 }
 
-/* ---------- Logo carousel (home) ---------- */
+/* ---------- Client logos (home) ---------- */
 
-.logo-carousel {
-  padding-top: 2.25rem;
+.client-logos {
+  padding-top: 3rem;
   padding-bottom: 3.5rem;
-  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
 }
 
-.logo-carousel-label {
+.client-logos-label {
   text-align: center;
-  font-size: var(--fs-xs);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted-2);
-  margin: 0 0 1.5rem;
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  margin: 0 0 2.5rem;
 }
 
-.logo-track {
-  overflow: hidden;
-  width: 100%;
-  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
-  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
-}
-
-.logo-track-inner {
-  display: flex;
+.client-logo-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2.5rem 1.5rem;
   align-items: center;
-  gap: 3.5rem;
-  width: max-content;
-  animation: logo-scroll 22s linear infinite;
 }
 
-@keyframes logo-scroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+@media (min-width: 700px) {
+  .client-logo-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3.5rem 2rem;
+  }
 }
 
-.logo-item {
-  flex-shrink: 0;
-  height: 36px;
-  min-width: 120px;
+.client-logo {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px dashed var(--line);
-  border-radius: 8px;
-  color: var(--muted-2);
-  font-size: var(--fs-xs);
-  letter-spacing: 0.08em;
-  padding: 0 1.25rem;
+  min-height: 44px;
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
 }
 
-.logo-item img {
-  height: 28px;
+@media (hover: hover) {
+  .client-logo:hover { opacity: 1; }
+}
+
+/* Any logo file, whatever its own colours, renders as flat white and
+   is then dimmed by the opacity above, so the set reads as one system. */
+.client-logo img {
+  max-height: 40px;
+  max-width: min(160px, 100%);
   width: auto;
-  display: block;
-  filter: grayscale(1) brightness(0) invert(1);
-  opacity: 0.6;
+  filter: brightness(0) invert(1);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .logo-track-inner { animation: none; }
+/* Text placeholder shown until the real logo file is added. */
+.client-logo span {
+  font-size: var(--fs-base);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-align: center;
+  color: var(--fg);
 }
 
 /* ---------- Case study pages ---------- */

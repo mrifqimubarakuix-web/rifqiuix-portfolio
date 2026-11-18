@@ -103,14 +103,13 @@ document.addEventListener("DOMContentLoaded", function () {
     summary.textContent = years + "+ years across " + companyCount + " companies";
   }
 
-  // Selected Work / More Work grids: sort the cards in each grid by
-  // data-date (newest first), so adding a new project is just a matter
-  // of giving it a date — no manual reordering of the markup required.
-  var projectGrids = document.querySelectorAll(".work .project-grid");
-  var projectTotal = 0;
+  // Other Works grid: sort the cards by data-date (newest first), so
+  // adding a new project is just a matter of giving it a date. The
+  // Featured Works grid keeps the hand-picked order from the markup.
+  var projectTotal = document.querySelectorAll(".work .project-card").length;
+  var projectGrids = document.querySelectorAll(".work .project-grid:not(.featured-grid)");
   projectGrids.forEach(function (grid) {
     var cards = Array.prototype.slice.call(grid.querySelectorAll(".project-card"));
-    projectTotal += cards.length;
     cards.sort(function (a, b) {
       return b.getAttribute("data-date").localeCompare(a.getAttribute("data-date"));
     });
@@ -145,11 +144,11 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Homepage work grid: show the first 4 cards, then reveal one more row
+  // Other Works grid: show the first 4 cards, then reveal one more row
   // each time the end of the grid scrolls into view. Cards are only
   // hidden here (no JS = everything visible), and hidden cards' lazy
   // images don't download until their row is revealed.
-  var workGrid = document.querySelector(".work .project-grid");
+  var workGrid = document.querySelector(".work .other-grid");
   if (workGrid && "IntersectionObserver" in window) {
     var INITIAL_CARDS = 4;
     var workCards = Array.prototype.slice.call(workGrid.querySelectorAll(".project-card"));

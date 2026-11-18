@@ -165,6 +165,13 @@ img { max-width: 100%; height: auto; display: block; }
 
 .cv-link:hover { color: var(--fg); }
 
+/* On phones the full name plus three icons is tight, so tighten the
+   name's tracking and the icon spacing to keep everything on one line. */
+@media (max-width: 480px) {
+  .logo { font-size: var(--fs-xs); letter-spacing: 0.03em; }
+  .header-actions { gap: 0.875rem; }
+}
+
 /* Three labelled links no longer fit beside the name below ~760px,
    so they collapse to icons (the text stays for screen readers). */
 @media (max-width: 760px) {

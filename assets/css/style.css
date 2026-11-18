@@ -258,7 +258,6 @@ body.menu-open .menu-panel {
 }
 
 .hero-copy {
-  flex: 0 1 38rem;
   max-width: 38rem;
   min-width: 0;
   display: flex;
@@ -291,12 +290,7 @@ body.menu-open .menu-panel {
 
 @media (max-width: 560px) {
   .status-tag {
-    flex-direction: column;
-    align-items: flex-start;
-    text-align: left;
-    gap: 0.4rem;
     border-radius: 14px;
-    padding: 0.65rem 1rem;
   }
 }
 
@@ -333,6 +327,10 @@ body.menu-open .menu-panel {
     justify-content: space-between;
     min-height: 60vh;
   }
+
+  /* Only in the side-by-side layout: a flex-basis here would turn into
+     a 38rem height when the hero stacks vertically on phones. */
+  .hero-copy { flex: 0 1 38rem; }
 }
 
 /* ---------- Stat bar (home) ---------- */
@@ -1199,7 +1197,7 @@ a.beyond-item:hover {
 
 .project-card img { object-fit: cover; object-position: top; display: block; }
 
-.project-card h2 {
+.project-card h3 {
   font-size: var(--fs-lg);
   font-weight: 700;
   line-height: 1.3;
@@ -1213,11 +1211,11 @@ a.beyond-item:hover {
   letter-spacing: 0.04em;
 }
 
-.project-card h2 { transition: color 0.15s ease; }
+.project-card h3 { transition: color 0.15s ease; }
 .project-card img { transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1); }
 
 @media (hover: hover) {
-  .project-card:hover h2 { color: var(--accent); }
+  .project-card:hover h3 { color: var(--accent); }
   /* Cards with an intro video play it on hover instead of zooming. */
   .project-card:not([data-video]):hover img { transform: scale(1.03); }
 }

@@ -1021,6 +1021,14 @@ a.beyond-item:hover {
 
 .page-heading-row .page-heading { padding: 0; }
 
+/* Homepage "Other Works" heading with its sort note on the right. */
+.work-order {
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+}
+
 .career-summary {
   margin: 0.4rem 0 0;
   font-size: var(--fs-xs);
